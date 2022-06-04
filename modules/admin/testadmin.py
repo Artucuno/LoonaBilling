@@ -7,7 +7,3 @@ module = Blueprint('module', __name__)
 @module.route('/module/<page>')
 def show(page=None):
     return f'Page = {page}'
-
-@module.route('/getConfig')
-def getConfig():
-    return config.configTest

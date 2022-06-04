@@ -1,2 +1,2 @@
 # Temp Config File
-configTest = 'test'
+domain_url = "http://localhost/"
