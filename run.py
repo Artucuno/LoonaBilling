@@ -6,11 +6,12 @@ import stripe
 import config
 import importlib
 import imp
+
 stripe.api_version = '2020-08-27'
 stripe.api_key = ''
 domain_url = "http://localhost/"
 app = Flask(__name__)
-#
+
 def load_blueprints():
     """
         This code looks for any modules or packages in the given directory, loads them

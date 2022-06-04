@@ -7,6 +7,7 @@ for root, dirs, files in os.walk(".", topdown=False):
         if name == '__pycache__':
             shutil.rmtree(os.path.join(root, name))
 
+os.system('pipreqs . --force')
 os.system('git add -A')
 os.system('git commit -a')
 input('Push enter')
