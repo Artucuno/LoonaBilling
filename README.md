@@ -5,5 +5,13 @@ Open-source WHMCS alternative
 # Features
 - [x] [Stripe](https://stripe.com) Support
 - [x] Modular Design
+    - [x] Custom Module Support
+- [ ] Product Management
 - [ ] Storefront
 - [ ] Shopping Cart
+- [ ] User Management
+- [ ] Domain Management/Reselling
+    - [ ] DNS Management
+    - [ ] ID Management
+    - [ ] Domain Redirection
+- [ ] Management API
