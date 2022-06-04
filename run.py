@@ -4,9 +4,56 @@ from flask import Flask
 from flask import *
 import stripe
 import config
+import importlib
+import imp
 stripe.api_version = '2020-08-27'
 stripe.api_key = ''
+domain_url = "http://localhost/"
 app = Flask(__name__)
+
+def load_blueprints():
+    """
+        This code looks for any modules or packages in the given directory, loads them
+        and then registers a blueprint - blueprints must be created with the name 'module'
+        Implemented directory scan
+
+        Bulk of the code taken from:
+            https://github.com/smartboyathome/Cheshire-Engine/blob/master/ScoringServer/utils.py
+    """
+
+    mods = {}
+    path = 'modules/admin'
+    dir_list = os.listdir(path)
+
+    for fname in dir_list:
+        if os.path.isdir(os.path.join(path, fname)) and os.path.exists(os.path.join(path, fname, '__init__.py')):
+            f, filename, descr = imp.find_module(fname, [path])
+            mods[fname] = imp.load_module(fname, f, filename, descr)
+            app.register_blueprint(getattr(mods[fname], 'module'), url_prefix='/admin')
+        elif os.path.isfile(os.path.join(path, fname)):
+            name, ext = os.path.splitext(fname)
+            if ext == '.py' and not name == '__init__':
+                f, filename, descr = imp.find_module(name, [path])
+                mods[fname] = imp.load_module(name, f, filename, descr)
+                app.register_blueprint(getattr(mods[fname], 'module'), url_prefix='/admin')
+
+    path = 'modules/user'
+    dir_list = os.listdir(path)
+
+    for fname in dir_list:
+        if os.path.isdir(os.path.join(path, fname)) and os.path.exists(os.path.join(path, fname, '__init__.py')):
+            f, filename, descr = imp.find_module(fname, [path])
+            mods[fname] = imp.load_module(fname, f, filename, descr)
+            app.register_blueprint(getattr(mods[fname], 'module'), url_prefix='/store')
+        elif os.path.isfile(os.path.join(path, fname)):
+            name, ext = os.path.splitext(fname)
+            if ext == '.py' and not name == '__init__':
+                f, filename, descr = imp.find_module(name, [path])
+                mods[fname] = imp.load_module(name, f, filename, descr)
+                app.register_blueprint(getattr(mods[fname], 'module'), url_prefix='/store')
+
+load_blueprints()
+print(app.url_map)
 
 @app.route('/')
 def main():
@@ -14,7 +61,6 @@ def main():
 
 @app.route('/startSession')
 def startSession():
-    domain_url = "http://localhost/"
     #stripe.api_key = stripe_keys["secret_key"]
 
     try:
