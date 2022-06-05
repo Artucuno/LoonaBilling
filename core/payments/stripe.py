@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, abort
 from jinja2 import TemplateNotFound
-#import stripe
+import stripe
 import config
-
+import os
 module = Blueprint('Stripe', __name__)
 
 def cf(folder):
@@ -18,7 +18,8 @@ def checks():
         import configs.stripe.config as stripeConfig
         stripe.api_version = stripeConfig.api_version
         stripe.api_key = stripeConfig.api_key
-    except:
+    except Exception as e:
+        print(e)
         cf('configs/stripe')
         a = open('configs/stripe/config.py', 'w+').write('''# This is not an official module made by Stripe.
 api_version = ''

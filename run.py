@@ -8,6 +8,7 @@ import importlib
 import imp
 from colorama import Fore, Back, Style
 from colorama import init
+
 init()
 
 app = Flask(__name__)
@@ -70,7 +71,7 @@ def load_blueprints():
                 if ext == '.py' and not name == '__init__':
                     f, filename, descr = imp.find_module(name, [path])
                     mods[fname] = imp.load_module(name, f, filename, descr)
-                    app.register_blueprint(getattr(mods[fname], 'module'), url_prefix=f'/{name}')
+                    app.register_blueprint(getattr(mods[fname], 'module'))#, url_prefix=f'/{name}')
                     print(Fore.GREEN + '[Core] ' + Style.RESET_ALL + 'Imported', mods[fname].module.name)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -83,7 +84,15 @@ print(app.url_map)
 
 @app.route('/')
 def main():
-    return 'yay it works!!'
+    return render_template('core/index.html', businessName=config.businessName)
+
+@app.route('/about')
+def about():
+    return render_template('core/index.html', businessName=config.businessName) # CHANGE TO ABOUT PAGE
+
+@app.route('/contact')
+def contact():
+    return render_template('core/index.html', businessName=config.businessName) # CHANGE TO CONTACT PAGE
 
 @app.route('/admin')
 def admin():

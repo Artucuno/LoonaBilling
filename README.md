@@ -6,8 +6,8 @@ Open-source WHMCS alternative
 - [x] [Stripe](https://stripe.com) Support
 - [x] Modular Design
     - [x] Custom Module Support
-- [ ] Product Management
-- [ ] Storefront
+- [ ] Product Management (W.I.P)
+- [ ] Storefront (W.I.P)
 - [ ] Shopping Cart
 - [ ] User Management
 - [ ] Domain Management/Reselling
