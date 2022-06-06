@@ -1,7 +1,7 @@
 # LoonaBilling
 
-Open-source WHMCS alternative
-
+A WIP Open-source WHMCS alternative.
+(Not yet recommended for use in a production environment)
 # Features
 - [x] [Stripe](https://stripe.com) Support
 - [x] Modular Design
