@@ -95,18 +95,6 @@ for f in mods:
         app.adminModules += [mods[f].module.name]
     print(f, mods[f].module.name, mods[f].module.hasAdminPage)
 
-@app.route('/')
-def main():
-    return render_template('core/index.html', aboutText=config.aboutText, businessName=config.businessName)
-
-@app.route('/about')
-def about():
-    return render_template('core/about.html', aboutText=config.aboutText, businessName=config.businessName) # CHANGE TO ABOUT PAGE
-
-@app.route('/contact', methods=['GET', 'POST'])
-def contact():
-    return render_template('core/contact.html', aboutText=config.aboutText, businessName=config.businessName) # CHANGE TO CONTACT PAGE
-
 @app.route('/admin')
 def admin():
     return render_template('core/admin.html', tabs=app.adminModules, cpuUsage=int(psutil.cpu_percent()), ramUsage=int(psutil.virtual_memory().percent))

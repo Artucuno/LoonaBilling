@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, abort
 from jinja2 import TemplateNotFound
-#import stripe
+import stripe
 import config
 import os
 module = Blueprint('Loona Products', __name__)
