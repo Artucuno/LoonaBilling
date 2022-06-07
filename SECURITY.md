@@ -1,4 +1,4 @@
 # Security Policy
 
 ## Reporting a Vulnerability
-Guide coming soon...
+Responsibly disclose any Vulnerability or Bug that you find via Discord. (Artucuno#1898)
