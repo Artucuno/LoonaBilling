@@ -4,6 +4,7 @@ from jinja2 import TemplateNotFound
 import config
 import os
 module = Blueprint('LoonaStore', __name__)
+module.hasAdminPage = False
 
 def cf(folder):
     try:

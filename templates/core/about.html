@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>{{ businessName }} - Store</title>
+<title>{{ businessName }} - About</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
 * {box-sizing: border-box;}
@@ -81,11 +81,12 @@ body {
 </style>
 </head>
 <body>
+
 {% include 'divs/navbar.html' %}
+
 <div style="padding-left:16px">
-  <h2>It works!</h2>
-  <p>This is a test page for LoonaBilling!</p>
-  <p>The store page will be placed here soon.</p>
+  <h2>About Us</h2>
+  <p>{{ aboutText }}</p>
 </div>
 
 </body>

@@ -1,9 +1,11 @@
 from flask import Blueprint, render_template, abort
+from flask import *
 from jinja2 import TemplateNotFound
 import stripe
 import config
 import os
 module = Blueprint('Stripe', __name__)
+module.hasAdminPage = True
 
 def cf(folder):
     try:
@@ -47,6 +49,7 @@ def startSession():
         # For full details see https:#stripe.com/docs/api/checkout/sessions/create
 
         # ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
+        print(request.args)
         ssession = stripe.checkout.Session.create(
             success_url=config.domain_url + "success?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=config.domain_url + "cancelled",
@@ -59,7 +62,8 @@ def startSession():
                     "currency": "usd",
                     "amount": "2000",
                 }
-            ]
+            ],
+            metadata={request.args}
         )
         return redirect(ssession.url, code=303)
     except Exception as e:
@@ -73,3 +77,7 @@ def success():
 @module.route("/cancelled")
 def cancelled():
     return ':('
+
+@module.route('/admin/{}'.format(module.name))
+def adminPage():
+    return 'a'

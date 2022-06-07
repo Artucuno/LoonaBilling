@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>{{ businessName }} - Store</title>
+<title>{{ businessName }} - Contact</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
 * {box-sizing: border-box;}
@@ -83,9 +83,12 @@ body {
 <body>
 {% include 'divs/navbar.html' %}
 <div style="padding-left:16px">
-  <h2>It works!</h2>
-  <p>This is a test page for LoonaBilling!</p>
-  <p>The store page will be placed here soon.</p>
+  <h2>Contact</h2>
+  <form method="POST">
+    <input type="text" name="fullname" placeholder="Full name *" required>
+    <input type="email" name="email" placeholder="Email *" required><br>
+    <textarea name="message" rows="8" cols="80"></textarea><br>
+    <button type="submit">Submit</button>
 </div>
 
 </body>
