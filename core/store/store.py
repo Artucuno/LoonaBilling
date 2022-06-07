@@ -43,4 +43,4 @@ def store():
         category = request.args['category']
     if 'item' in request.args:
         item = request.args['item']
-    return 'Welcome to the store!<br>{} | {}'.format(category, item)
+    return 'Welcome to the store!' #<br>{} | {}'.format(category, item) # Removed due to CWE-79 & CWE-116
