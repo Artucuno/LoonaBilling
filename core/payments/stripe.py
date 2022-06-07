@@ -6,6 +6,7 @@ import config
 import os
 module = Blueprint('Stripe', __name__)
 module.hasAdminPage = True
+module.moduleDescription = 'The Core Stripe Billing Module for LoonaBilling (Unofficial)'
 
 def cf(folder):
     try:

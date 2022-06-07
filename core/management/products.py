@@ -3,8 +3,9 @@ from jinja2 import TemplateNotFound
 #import stripe
 import config
 import os
-module = Blueprint('LoonaProducts', __name__)
+module = Blueprint('Loona Products', __name__)
 module.hasAdminPage = True
+module.moduleDescription = 'The Core Product Management Module for LoonaBilling'
 
 def cf(folder):
     try:
@@ -21,4 +22,4 @@ checks()
 
 @module.route('/admin/{}'.format(module.name))
 def adminPage():
-    return render_template('core/LoonaProducts/admin.html', businessName=config.businessName)
+    return render_template('core/LoonaProducts/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)

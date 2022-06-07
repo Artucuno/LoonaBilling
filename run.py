@@ -6,16 +6,26 @@ from flask import Flask
 from flask import *
 import stripe
 import config
+import string
+import random
 import importlib
 import imp
 from colorama import Fore, Back, Style
 from colorama import init
+import psutil
+import base64
+from uuid import getnode
+import pyminizip
 from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 init()
 
 app = Flask(__name__)
 app.adminModules = []
+
 def cf(folder):
     try:
         os.mkdir(folder)
@@ -99,7 +109,7 @@ def contact():
 
 @app.route('/admin')
 def admin():
-    return render_template('core/admin.html', tabs=app.adminModules)
+    return render_template('core/admin.html', tabs=app.adminModules, cpuUsage=int(psutil.cpu_percent()), ramUsage=int(psutil.virtual_memory().percent))
 
 app.config['SERVER_NAME'] = config.domain
 app.run(host=config.ip, port=config.port, debug=config.debug, ssl_context=config.ssl)

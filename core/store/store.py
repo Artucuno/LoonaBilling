@@ -6,6 +6,7 @@ import config
 import os
 module = Blueprint('LoonaStore', __name__)
 module.hasAdminPage = False
+module.moduleDescription = 'The Core Store Module for LoonaBilling'
 
 def cf(folder):
     try:
