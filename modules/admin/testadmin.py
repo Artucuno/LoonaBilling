@@ -4,7 +4,6 @@ import config
 module = Blueprint('module', __name__)
 module.hasAdminPage = False
 
-@module.route('/module')
-@module.route('/module/<page>')
-def show(page=None):
-    return f'Page = {page}'
+@module.route('/testadmin')
+def show():
+    return 'Test admin'
