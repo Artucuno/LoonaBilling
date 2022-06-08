@@ -1,7 +1,5 @@
 # LoonaBilling
-<a href='https://discord.gg/SYscCzVcZY'>
-  <img src="https://img.shields.io/discord/887501133902385202?logo=discord&style=social">
-</a>
+<img src="https://img.shields.io/discord/887501133902385202?logo=discord&style=social">
 A WIP Open-source WHMCS alternative.
 (Not yet recommended for use in a production environment)
 # Features
