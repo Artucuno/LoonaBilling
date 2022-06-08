@@ -1,7 +1,9 @@
 # LoonaBilling
 <img src="https://img.shields.io/discord/887501133902385202?logo=discord&style=social">
+
 A WIP Open-source WHMCS alternative.
 (Not yet recommended for use in a production environment)
+
 # Features
 - [x] [Stripe](https://stripe.com) Support
 - [x] Modular Design
