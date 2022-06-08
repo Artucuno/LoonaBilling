@@ -5,6 +5,7 @@ import os
 module = Blueprint('Pages', __name__)
 module.hasAdminPage = True
 module.moduleDescription = 'Simple pages for LoonaBilling'
+module.version = '1.1'
 
 def cf(folder):
     try:
@@ -26,8 +27,8 @@ def main():
 
 @module.route('/about')
 def about():
-    return render_template('core/about.html', aboutText=config.aboutText, businessName=config.businessName) # CHANGE TO ABOUT PAGE
+    return render_template('core/about.html', aboutText=config.aboutText, businessName=config.businessName)
 
 @module.route('/contact', methods=['GET', 'POST'])
 def contact():
-    return render_template('core/contact.html', aboutText=config.aboutText, businessName=config.businessName) # CHANGE TO CONTACT PAGE
+    return render_template('core/contact.html', aboutText=config.aboutText, businessName=config.businessName)

@@ -67,11 +67,17 @@ div.content {
 </div>
 
 <div class="content">
-  <h2>Manage {{ moduleName }}</h2>
+  <h2>Manage API Keys {{ moduleName }}</h2>
   <p>{{ moduleDescription }}</h3>
-    <hr>
-    <h2>Management</h2>
-    <a href="/admin/{{ moduleName }}/createProduct">Create Product</a>
+  <hr>
+  <form method="POST">
+    <input type="text" name='publishableKey' placeholder="Publishable Key">
+    <button type="submit">Update</button>
+  </form>
+  <form method="POST">
+    <input type="text" name='privateKey' placeholder="Private Key">
+    <button type="submit">Update</button>
+  </form>
 </div>
 
 </body>

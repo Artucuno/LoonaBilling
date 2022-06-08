@@ -7,6 +7,7 @@ A WIP Open-source WHMCS alternative.
 (Not yet recommended for use in a production environment)
 
 # Features
+- [x] Built with Flask
 - [x] [Stripe](https://stripe.com) Support
 - [x] Modular Design
   - [x] Custom Module Support
