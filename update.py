@@ -33,13 +33,6 @@ LoonaBilling Update Script
 
 os.system('pipreqs . --force')
 os.system('git add -A')
-if a == '1':
-    os.system('git checkout main')
-elif a == '2':
-    os.system('git checkout development')
-else:
-    print('Invalid option')
-    exit()
 os.system('git commit -a')
 input('Push enter')
 if a == '1':
