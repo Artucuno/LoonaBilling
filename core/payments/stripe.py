@@ -7,7 +7,7 @@ import os
 module = Blueprint('Stripe', __name__)
 module.hasAdminPage = True
 module.moduleDescription = 'The Core Stripe Billing Module for LoonaBilling (Unofficial)'
-module.version = '1.2'
+module.version = '1.3'
 
 # TODO
 # https://stripe.com/docs/api/charges/list?lang=python
@@ -101,14 +101,26 @@ def cancelled():
 
 @module.route('/admin/{}/listPurcahses'.format(module.name))
 def adminListPurchases():
+    try:
+        bal = stripe.Balance.retrieve()["available"][0]["amount"]
+    except:
+        bal = '0.0'
+    try:
+        purchases = stripe.Charge.list()
+    except:
+        bal = 'Unable to get'
     #print(stripe.Balance.retrieve())
-    return render_template('core/Stripe/adminListPurchases.html', purchases=stripe.Charge.list(), bal=stripe.Balance.retrieve()["available"][0]["amount"], businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/Stripe/adminListPurchases.html', purchases=purchases, bal=bal, businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 
 @module.route('/admin/{}'.format(module.name))
 def adminPage():
+    try:
+        bal = stripe.Balance.retrieve()["available"][0]["amount"]
+    except:
+        bal = '0.0'
     #print(stripe.Balance.retrieve())
-    return render_template('core/Stripe/admin.html', bal=stripe.Balance.retrieve()["available"][0]["amount"], businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/Stripe/admin.html', bal=bal, businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/manageKeys'.format(module.name), methods=['GET', 'POST'])
 def adminManageKeys():
