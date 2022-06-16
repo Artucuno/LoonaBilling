@@ -1,6 +1,8 @@
+art==5.6
 colorama==0.4.4
 configs==3.0.3
 cryptography==3.3.2
 Flask==1.1.2
 Jinja2==3.0.1
 psutil==5.8.0
+requests==2.25.1

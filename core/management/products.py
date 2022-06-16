@@ -8,10 +8,11 @@ from colorama import Fore, Back, Style
 from colorama import init
 import imp
 import json
-module = Blueprint('Loona Products', __name__)
+
+module = Blueprint('Products', __name__)
 module.hasAdminPage = True
 module.moduleDescription = 'The Core Product Management Module for LoonaBilling'
-module.version = '1.1'
+module.version = '1.2'
 
 def cf(folder):
     try:
@@ -19,7 +20,8 @@ def cf(folder):
         print(f'[{module.name}] Created Folder: {folder}')
     except Exception as e:
         #print(e)
-        pass
+        return
+        
 mods = {}
 for path, dirs, files in os.walk("core/payments", topdown=False):
     for fname in files:
@@ -46,6 +48,28 @@ checks()
 def adminPage():
     return render_template('core/LoonaProducts/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
+@module.route('/admin/{}/createCategory'.format(module.name), methods=['GET', 'POST'])
+def createCategory():
+    if request.method == 'POST':
+        try:
+            os.mkdir(os.path.join('products',request.form['category']))
+        except:
+            return render_template('core/LoonaProducts/adminCreateCategory.html', msg='Category already exists', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+        return render_template('core/LoonaProducts/adminCreateCategory.html', msg='Category created', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/LoonaProducts/adminCreateCategory.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+
+@module.route('/admin/{}/deleteCategory'.format(module.name), methods=['GET', 'POST'])
+def deleteCategory():
+    if request.method == 'POST':
+        try:
+            os.remove(os.path.join('products', request.form['category'].strip()))
+        except Exception as e:
+            print(e)
+            return render_template('core/LoonaProducts/adminCreateCategory.html', msg="Category doesn't exists or access is denied", businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+        return render_template('core/LoonaProducts/adminCreateCategory.html', msg='Category deleted', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/LoonaProducts/adminDeleteCategory.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+
+
 @module.route('/admin/{}/createProduct'.format(module.name), methods=['GET', 'POST'])
 def createProduct():
     if request.method == 'POST':
@@ -64,9 +88,10 @@ def createProduct():
             'title': request.form['title'],
             'description': description,
             'price': request.form['price'],
-            'automation': None
+            'automation': None,
+            'image': None
             })
             with open('products/{}/{}.json'.format(request.form['category'], len(os.listdir('products/{}'.format(request.form['category'])))), 'w+') as of:
                 json.dump(data, of)
-            return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), msg=f'Created Product: {request.fprm["title"]}', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+            return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), msg=f'Created Product: {request.form["title"]}', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
     return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)

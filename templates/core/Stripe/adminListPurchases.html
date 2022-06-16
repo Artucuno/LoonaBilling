@@ -70,13 +70,11 @@ div.content {
   <h2>Manage {{ moduleName }} - Balance ${{ bal }}</h2>
   <p>{{ moduleDescription }}</h3>
     <hr>
-    <h2>Management</h2>
-    <div style="float: left">
-      <a href="/admin/{{ moduleName }}/listPurcahses">List Purchases</a>
-    </div>
-    <div style="float: left">
-      <a href="/admin/{{ moduleName }}/manageKeys">Create API Keys</a>
-    </div>
+    <h2>Purchases</h2>
+    {% for f in purchases %}
+    <p>{{ f['metadata']['item'] }} - {{ f['amount'] }}</p>
+    {% endfor %}
+    <textarea name="purchases" rows="8" cols="80" disabled>{{ purchases }}</textarea>
 </div>
 
 </body>

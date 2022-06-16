@@ -7,7 +7,11 @@ import os
 module = Blueprint('Stripe', __name__)
 module.hasAdminPage = True
 module.moduleDescription = 'The Core Stripe Billing Module for LoonaBilling (Unofficial)'
-module.version = '1.1'
+module.version = '1.3'
+
+# TODO
+# https://stripe.com/docs/api/charges/list?lang=python
+# https://stripe.com/docs/api/refunds/create?lang=python
 
 def cf(folder):
     try:
@@ -15,19 +19,22 @@ def cf(folder):
         print(f'[{module.name}] Created Folder: {folder}')
     except Exception as e:
         #print(e)
-        pass
+        return
 
 def checks():
     try:
         import configs.stripe.config as stripeConfig
         stripe.api_version = stripeConfig.api_version
-        stripe.api_key = stripeConfig.api_key
+
+        if os.path.isfile('configs/stripe/privateKey.txt'):
+            with open('configs/stripe/privateKey.txt', 'r') as of:
+                stripe.api_key = of.read().strip()
+        #print(stripe.Charge.list(limit=3))
     except Exception as e:
         print(e)
         cf('configs/stripe')
         a = open('configs/stripe/config.py', 'w+').write('''# This is not an official module made by Stripe.
-api_version = ''
-api_key = ''
+api_version = '2020-08-27'
 ''')
         try:
             import configs.stripe.config as stripeConfig
@@ -72,9 +79,12 @@ def startSession():
                                 "quantity": 1,
                                 "currency": "usd",
                                 "amount": int(p['price'].replace('.', '')),
+                                "description": str(p['description']),
+                                #"metadata": {'category': request.args['category'], 'itemID': request.args['item'], 'item': p['title']},
                             }
                         ],
-                        #metadata={request.args}
+                        #description=p['description'],
+                        metadata = {'category': request.args['category'], 'itemID': request.args['item'], 'item': p['title']},
                     )
                     return redirect(ssession.url, code=303)
     except Exception as e:
@@ -83,15 +93,36 @@ def startSession():
 @module.route("/success")
 def success():
     a = stripe.checkout.Session.retrieve(request.args['session_id'])
-    return 'Thanks for your payment!<br>{}'.format(a)
+    return render_template('core/Stripe/paymentSucess.html', businessName=config.businessName)
 
 @module.route("/cancelled")
 def cancelled():
-    return ':('
+    return render_template('core/Stripe/paymentCancelled.html', businessName=config.businessName)
+
+@module.route('/admin/{}/listPurcahses'.format(module.name))
+def adminListPurchases():
+    try:
+        bal = stripe.Balance.retrieve()["available"][0]["amount"]
+    except:
+        bal = '0.0'
+    try:
+        purchases = stripe.Charge.list()
+    except:
+        purchases = 'Unable to get'
+    #print(stripe.Balance.retrieve())
+    try:
+        return render_template('core/Stripe/adminListPurchases.html', purchases=purchases, bal=bal, businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    except:
+        return 'Unable to get. Have you added an API Key?'
 
 @module.route('/admin/{}'.format(module.name))
 def adminPage():
-    return render_template('core/Stripe/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    try:
+        bal = stripe.Balance.retrieve()["available"][0]["amount"]
+    except:
+        bal = '0.0'
+    #print(stripe.Balance.retrieve())
+    return render_template('core/Stripe/admin.html', bal=bal, businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/manageKeys'.format(module.name), methods=['GET', 'POST'])
 def adminManageKeys():

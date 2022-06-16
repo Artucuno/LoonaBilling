@@ -7,7 +7,7 @@ import os
 module = Blueprint('LoonaStore', __name__)
 module.hasAdminPage = False
 module.moduleDescription = 'The Core Store Module for LoonaBilling'
-module.version = '1.1'
+module.version = '1.2'
 
 def cf(folder):
     try:
@@ -15,7 +15,7 @@ def cf(folder):
         print(f'[{module.name}] Created Folder: {folder}')
     except Exception as e:
         #print(e)
-        pass
+        return
 
 def checks():
     try:

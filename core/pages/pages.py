@@ -13,7 +13,7 @@ def cf(folder):
         print(f'[{module.name}] Created Folder: {folder}')
     except Exception as e:
         #print(e)
-        pass
+        return
 
 def checks():
     cf('templates')
