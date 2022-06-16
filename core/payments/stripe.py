@@ -108,10 +108,12 @@ def adminListPurchases():
     try:
         purchases = stripe.Charge.list()
     except:
-        bal = 'Unable to get'
+        purchases = 'Unable to get'
     #print(stripe.Balance.retrieve())
-    return render_template('core/Stripe/adminListPurchases.html', purchases=purchases, bal=bal, businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
-
+    try:
+        return render_template('core/Stripe/adminListPurchases.html', purchases=purchases, bal=bal, businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    except:
+        return 'Unable to get. Have you added an API Key?'
 
 @module.route('/admin/{}'.format(module.name))
 def adminPage():
