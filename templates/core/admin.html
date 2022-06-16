@@ -92,6 +92,8 @@ div[role="progressbar"]::before {
 
 <div class="sidebar">
   <a class="active" href="#home">Home</a>
+  <hr>
+  <h3>Modules</h3>
   {% for f in tabs %}
   <a href="/admin/{{ f }}">{{ f }}</a>
   {% endfor %}
@@ -105,10 +107,16 @@ div[role="progressbar"]::before {
     <h2>CPU Usage</h2>
     <div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="--value:{{ cpuUsage }}"></div>
   </div>
-
   <div style="float:left">
     <h2>RAM Usage</h2>
     <div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="--value:{{ ramUsage }}"></div>
+  </div>
+  <div style="float:left">
+    <h2>Storage Usage</h2>
+    <div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="--value:{{ storageUsage }}"></div>
+  </div>
+  <div style="float: right">
+    <textarea rows="8" cols="80">{{ map }}</textarea>
   </div>
 </div>
 

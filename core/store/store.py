@@ -7,6 +7,7 @@ import os
 module = Blueprint('LoonaStore', __name__)
 module.hasAdminPage = False
 module.moduleDescription = 'The Core Store Module for LoonaBilling'
+module.version = '1.2'
 
 def cf(folder):
     try:
@@ -14,7 +15,7 @@ def cf(folder):
         print(f'[{module.name}] Created Folder: {folder}')
     except Exception as e:
         #print(e)
-        pass
+        return
 
 def checks():
     try:
@@ -44,4 +45,18 @@ def store():
         category = request.args['category']
     if 'item' in request.args:
         item = request.args['item']
-    return 'Welcome to the store!' #<br>{} | {}'.format(category, item) # Removed due to CWE-79 & CWE-116
+    #if category == '':
+    #    return str(os.listdir('products'))
+    categories = []
+    items = []
+    for f in os.listdir('products/{}'.format(category)):
+        if os.path.isdir(os.path.join('products/', category, f)):
+            print('folder')
+            categories += [f]
+        if os.path.isfile(os.path.join('products/', category, f)):
+            with open(os.path.join('products/', category, f)) as of:
+                data = json.load(of)
+                for p in data['Config']:
+                    items += [(p['title'], p['price'], p['description'], f.split('.')[0])]
+
+    return render_template('core/LoonaStore/index.html', businessName=config.businessName, categories=categories, items=items, category=category)

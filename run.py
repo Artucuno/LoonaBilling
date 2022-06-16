@@ -1,5 +1,10 @@
+import time
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(filename='logs/'+str(time.time()),
+                    filemode='a',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG)
 import sys, os
 import json
 from flask import Flask
@@ -8,31 +13,33 @@ import stripe
 import config
 import string
 import random
-import importlib
 import imp
 from colorama import Fore, Back, Style
 from colorama import init
 import psutil
 import base64
 from uuid import getnode
-import pyminizip
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from art import *
+import requests
 
+tprint("LoonaBilling")
 init()
 
 app = Flask(__name__)
 app.adminModules = []
+app.version = '1.2'
+app.hasUpdate = False
 
 def cf(folder):
     try:
         os.mkdir(folder)
         print(f'[LoonaBilling] Created Folder: {folder}')
     except Exception as e:
-        #print(e)
-        pass
+        return
 
 def checks():
     cf('configs')
@@ -43,13 +50,16 @@ def checks():
     cf('core/payments')
     cf('products')
     cf('logs')
+    try:
+        x = requests.get('https://raw.githubusercontent.com/Loona-cc/LoonaBilling/main/version').text
+        if x.text.strip() != app.version:
+            app.hasUpdate = True
+    except:
+        print('Unable to get latest version')
 
 checks()
 
 def load_blueprints():
-    """
-    https://github.com/smartboyathome/Cheshire-Engine/blob/master/ScoringServer/utils.py
-    """
     mods = {}
     #path = 'modules'
     #dir_list = os.listdir(path)
@@ -85,19 +95,30 @@ def load_blueprints():
                 print(Fore.RED, '[ERROR]', path, name, e, exc_type, fname, exc_tb.tb_lineno, Style.RESET_ALL)
     return mods
 
-
 mods = load_blueprints()
-print(app.url_map)
-print(mods)
+#print(app.url_map)
+#print(mods)
 for f in mods:
     #print(f)
-    if mods[f].module.hasAdminPage == True:
-        app.adminModules += [mods[f].module.name]
-    print(f, mods[f].module.name, mods[f].module.hasAdminPage)
+    try:
+        if mods[f].module.hasAdminPage == True:
+            app.adminModules += [mods[f].module.name]
+        #print(f, mods[f].module.name, mods[f].module.hasAdminPage, mods[f].module.version)
+    except:
+        pass
 
 @app.route('/admin')
 def admin():
-    return render_template('core/admin.html', tabs=app.adminModules, cpuUsage=int(psutil.cpu_percent()), ramUsage=int(psutil.virtual_memory().percent))
+    return render_template('core/admin.html', tabs=app.adminModules, map=app.url_map, cpuUsage=int(psutil.cpu_percent()), ramUsage=int(psutil.virtual_memory().percent), storageUsage=int(psutil.disk_usage('/').percent))
 
-app.config['SERVER_NAME'] = config.domain
-app.run(host=config.ip, port=config.port, debug=config.debug, ssl_context=config.ssl)
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('404.html', businessName=config.businessName), 404
+
+if __name__ == '__main__':
+    app.config['SERVER_NAME'] = config.domain
+    if app.hasUpdate:
+        print(Fore.GREEN + '[LoonaBilling] ' + Style.RESET_ALL + '*** There is a new update! ***')
+    print(Fore.GREEN + '[LoonaBilling] ' + Style.RESET_ALL + 'Ready to start')
+    app.run(host=config.ip, port=config.port, debug=config.debug, ssl_context=config.ssl)
