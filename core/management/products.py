@@ -8,6 +8,7 @@ from colorama import Fore, Back, Style
 from colorama import init
 import imp
 import json
+from werkzeug.utils import secure_filename
 
 module = Blueprint('Products', __name__)
 module.hasAdminPage = True
@@ -21,7 +22,7 @@ def cf(folder):
     except Exception as e:
         #print(e)
         return
-        
+
 mods = {}
 for path, dirs, files in os.walk("core/payments", topdown=False):
     for fname in files:
@@ -52,8 +53,9 @@ def adminPage():
 def createCategory():
     if request.method == 'POST':
         try:
-            os.mkdir(os.path.join('products',request.form['category']))
-        except:
+            os.mkdir(os.path.join('products', secure_filename(request.form['category'].strip())))
+        except Exception as e:
+            print(e)
             return render_template('core/LoonaProducts/adminCreateCategory.html', msg='Category already exists', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
         return render_template('core/LoonaProducts/adminCreateCategory.html', msg='Category created', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
     return render_template('core/LoonaProducts/adminCreateCategory.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
@@ -62,7 +64,8 @@ def createCategory():
 def deleteCategory():
     if request.method == 'POST':
         try:
-            os.remove(os.path.join('products', request.form['category'].strip()))
+            if os.path.isdir():
+                os.remove(os.path.join('products', secure_filename(request.form['category'].strip())))
         except Exception as e:
             print(e)
             return render_template('core/LoonaProducts/adminCreateCategory.html', msg="Category doesn't exists or access is denied", businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)

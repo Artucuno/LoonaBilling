@@ -51,11 +51,13 @@ def checks():
     cf('products')
     cf('logs')
     try:
-        x = requests.get('https://raw.githubusercontent.com/Loona-cc/LoonaBilling/main/version').text
+        x = requests.get('https://raw.githubusercontent.com/Loona-cc/LoonaBilling/main/version')
         if x.text.strip() != app.version:
             app.hasUpdate = True
-    except:
-        print('Unable to get latest version')
+        else:
+            print('You are on the latest version!')
+    except Exception as e:
+        print('Unable to get latest version: {}'.format(e))
 
 checks()
 
