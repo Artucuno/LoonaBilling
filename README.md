@@ -15,6 +15,8 @@ A WIP Open-source WHMCS alternative.
 - [x] Admin Panel (W.I.P)
 - [x] Product Management (W.I.P)
 - [x] Storefront (W.I.P)
+
+# TODO
 - [ ] Shopping Cart
 - [ ] Email Sending
 - [ ] User Management
