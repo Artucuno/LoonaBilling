@@ -31,8 +31,8 @@ def checks():
                 stripe.api_key = of.read().strip()
     except Exception as e:
         print(e)
-        cf('configs/stripe')
-
+    
+    cf('configs/stripe')
     cf('products')
 
 checks()
