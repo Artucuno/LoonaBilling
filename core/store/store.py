@@ -42,7 +42,7 @@ def store():
     category = ''
     item = ''
     if 'category' in request.args:
-        category = request.args['category']
+        category = secure_filename(request.args['category'])
     if 'item' in request.args:
         item = request.args['item']
     #if category == '':
