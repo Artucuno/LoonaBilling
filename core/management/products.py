@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, abort
 from flask import *
 from jinja2 import TemplateNotFound
-import stripe
 import config
 import sys, os
 from colorama import Fore, Back, Style
@@ -9,6 +8,12 @@ from colorama import init
 import imp
 import json
 from werkzeug.utils import secure_filename
+from core.utils.auth import auth
+
+# TODO:
+# Add currency AUD/USD products
+# Add automation API selection
+# Add images to products
 
 module = Blueprint('Products', __name__)
 module.hasAdminPage = True
@@ -24,6 +29,7 @@ def cf(folder):
         return
 
 mods = {}
+paypro = []
 for path, dirs, files in os.walk("core/payments", topdown=False):
     for fname in files:
         try:
@@ -31,8 +37,9 @@ for path, dirs, files in os.walk("core/payments", topdown=False):
             if ext == '.py' and not name == '__init__':
                 f, filename, descr = imp.find_module(name, [path])
                 mods[fname] = imp.load_module(name, f, filename, descr)
-                #print(getattr(mods[fname]))
-                print(Fore.GREEN + '[Product Module] ' + Style.RESET_ALL + 'Imported', mods[fname].module.name)
+                #print(getattr(mods[fname], 'module').name)
+                paypro += [getattr(mods[fname], 'module').name]
+                print(Fore.GREEN + f'[{module.name}] ' + Style.RESET_ALL + 'Imported', mods[fname].module.name)
                 #globals()
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -42,14 +49,19 @@ for path, dirs, files in os.walk("core/payments", topdown=False):
 def checks():
     cf('products')
     cf('products/default')
+    cf('static')
+    cf('static/assets')
+    cf('static/assets/prodimages')
 
 checks()
 
 @module.route('/admin/{}'.format(module.name))
+@auth.login_required
 def adminPage():
     return render_template('core/LoonaProducts/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/createCategory'.format(module.name), methods=['GET', 'POST'])
+@auth.login_required
 def createCategory():
     if request.method == 'POST':
         try:
@@ -61,6 +73,7 @@ def createCategory():
     return render_template('core/LoonaProducts/adminCreateCategory.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/deleteCategory'.format(module.name), methods=['GET', 'POST'])
+@auth.login_required
 def deleteCategory():
     if request.method == 'POST':
         try:
@@ -74,6 +87,7 @@ def deleteCategory():
 
 
 @module.route('/admin/{}/createProduct'.format(module.name), methods=['GET', 'POST'])
+@auth.login_required
 def createProduct():
     if request.method == 'POST':
         print(request.form)
@@ -85,16 +99,27 @@ def createProduct():
         elif 'price' not in request.form:
             return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), msg='Price is missing', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
         else:
+            price = request.form['price']
+            if '.' not in request.form['price']:
+                price = request.form['price'] + '00' # Stripe uses the 2 numbers on the end for cents
+            else:
+                if len(price.split('.')[1]) == 1:
+                    price += '0'
+                if len(price.split('.')[1]) > 2:
+                    price = price.replace(price.split('.')[1], str(round(float(price.split('.')[1]), 2)))
             data = {}
             data['Config'] = []
             data['Config'].append({
             'title': request.form['title'],
             'description': description,
-            'price': request.form['price'],
+            'price': price.replace('.', ''),
             'automation': None,
-            'image': None
+            'image': None,
+            'provider': request.form['paypro'],
+            'removed': False,
+            'currency': request.form['currency']
             })
             with open('products/{}/{}.json'.format(request.form['category'], len(os.listdir('products/{}'.format(request.form['category'])))), 'w+') as of:
                 json.dump(data, of)
-            return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), msg=f'Created Product: {request.form["title"]}', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
-    return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+            return render_template('core/LoonaProducts/adminCreateProduct.html', payments=paypro, categories=os.listdir('products'), msg=f'Created Product: {request.form["title"]}', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/LoonaProducts/adminCreateProduct.html', payments=paypro, categories=os.listdir('products'), businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)

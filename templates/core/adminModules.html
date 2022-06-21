@@ -91,7 +91,7 @@ div[role="progressbar"]::before {
 <body>
 
 <div class="sidebar">
-  <a class="active" href="#home">Home</a>
+  <a class="active" href="/admin">Home</a>
   <hr>
   <h3>Modules</h3>
   {% for f in tabs %}
@@ -100,24 +100,16 @@ div[role="progressbar"]::before {
 </div>
 
 <div class="content">
-  <h2>LoonaBilling</h2>
-  <p>This is the Admin Panel for LoonaBilling, you can update the settings of LoonaBilling and its modules.</p>
+  <h2>Modules - LoonaBilling</h2>
+  <p>Manage LoonaBilling modules.</p>
   <hr>
-  <div style="float:left">
-    <h2>CPU Usage</h2>
-    <div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="--value:{{ cpuUsage }}"></div>
-  </div>
-  <div style="float:left">
-    <h2>RAM Usage</h2>
-    <div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="--value:{{ ramUsage }}"></div>
-  </div>
-  <div style="float:left">
-    <h2>Storage Usage</h2>
-    <div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="--value:{{ storageUsage }}"></div>
-  </div>
-  <div style="float: right">
-    <textarea rows="8" cols="80">{{ map }}</textarea>
-  </div>
+  <p>
+  {% for f in mods %}
+  <form method="POST">
+    <p>[v{{ f[2] }}] {{ f[0] }} - {{ f[1] }} | <button type="submit" name="install-{{ f[0] }}">Install</button> <button type="submit" name="uninstall-{{ f[0] }}">Uninstall</button></p>
+  </form>
+  {% endfor %}
+  </p>
 </div>
 
 </body>

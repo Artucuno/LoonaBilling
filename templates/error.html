@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Error 404 - {{ businessName }}</title>
+<title>Error - {{ businessName }}</title>
 <link rel="stylesheet" href="/static/fontawesome/css/all.css">
 
 <style>
@@ -86,8 +86,8 @@ body {
 <div style="padding-left:16px">
   <center>
     <h1 style="color: orange"><i class="fa-solid fa-triangle-exclamation"></i></h1>
-    <h1>Error 404</h1>
-    <p>The page you are looking for was not found.</p>
+    <h1>Error!</h1>
+    <p>{{ msg }}</p>
   </center>
 </div>
 

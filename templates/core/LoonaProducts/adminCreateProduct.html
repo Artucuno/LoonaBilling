@@ -110,10 +110,19 @@ div.content {
     <form method="POST">
       <div style="float:left">
         <input type="text" name="title" value="My Product" placeholder="Product name" required>
-        <input type="number" name="price" min="0.50" max="10000.00" step="0.01" placeholder="Price" required/><br>
+        <input type="number" name="price" min="0.50" max="10000.00" step="0.01" placeholder="Price" required/>
+        <select name='currency' required>
+          <option value="USD">USD</option>
+          <option value="AUD">AUD</option>
+        </select><br>
         <textarea name="description" rows="8" cols="80" placeholder="Great Product Description"></textarea><br>
-        <select name='category'>
+        <select name='category' required>
           {% for f in categories %}
+          <option value="{{ f }}">{{ f }}</a>
+          {% endfor %}
+        </select>
+        <select name='paypro' required>
+          {% for f in payments %}
           <option value="{{ f }}">{{ f }}</a>
           {% endfor %}
         </select>
@@ -121,7 +130,7 @@ div.content {
       </div>
       <div class="form-input" style="float: left">
         <label for="file-ip-1">Upload Image</label>
-        <input type="file" id="file-ip-1" accept="image/*" onchange="showPreview(event);">
+        <input type="file" name='prodImage' id="file-ip-1" accept="image/*" onchange="showPreview(event);">
         <div class="preview">
           <img id="file-ip-1-preview">
         </div>
