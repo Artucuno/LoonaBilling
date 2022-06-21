@@ -4,6 +4,8 @@ from jinja2 import TemplateNotFound
 #import stripe
 import config
 import os
+from werkzeug.utils import secure_filename
+
 module = Blueprint('LoonaStore', __name__)
 module.hasAdminPage = False
 module.moduleDescription = 'The Core Store Module for LoonaBilling'
