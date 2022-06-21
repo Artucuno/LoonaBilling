@@ -5,6 +5,9 @@ import stripe
 import config
 import os
 from core.utils.auth import auth
+
+stripe.api_version = '2020-08-27'
+
 module = Blueprint('Stripe', __name__)
 module.hasAdminPage = True
 module.moduleDescription = 'The Core Stripe Billing Module for LoonaBilling (Unofficial)'
@@ -23,15 +26,13 @@ def cf(folder):
         return
 
 def checks():
-    try:
-        stripe.api_version = '2020-08-27'
-
-        if os.path.isfile('configs/stripe/privateKey.txt'):
+    if os.path.isfile('configs/stripe/privateKey.txt'):
+        try:
             with open('configs/stripe/privateKey.txt', 'r') as of:
                 stripe.api_key = of.read().strip()
-    except Exception as e:
-        print(e)
-    
+        except Exception as e:
+            print('Unable to read stripe key:', e)
+
     cf('configs/stripe')
     cf('products')
 

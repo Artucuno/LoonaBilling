@@ -63,6 +63,6 @@ def store():
                     prc.insert(-2, '.')
                     print(prc)
                     #print(list(p['price']).insert(-2, '.'))
-                    items += [(p['title'], ''.join(prc), p['description'], f.split('.')[0], p['provider'])]
+                    items += [(p['title'], ''.join(prc), p['description'], f.split('.')[0], p['provider'], p['image'])]
 
     return render_template('core/LoonaStore/index.html', businessName=config.businessName, categories=categories, items=items, category=category)

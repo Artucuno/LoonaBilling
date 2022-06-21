@@ -169,7 +169,7 @@ div.content {
 {% for f in items %}
 
   <div class="card">
-    <!--<img src="/w3images/jeans3.pg" alt="Denim Jeans" style="width:100%">-->
+    <img src="/{{ f[5] }}" alt="{{ f[0] }}" style="width:100%">
     <h1>{{ f[0] }}</h1>
     <p class="price">${{ f[1] }}</p>
     <p>{{ f[2] }}</p>

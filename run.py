@@ -9,7 +9,6 @@ import sys, os
 import json
 from flask import Flask
 from flask import *
-import stripe
 import config
 import string
 import random
@@ -39,21 +38,6 @@ app.adminModules = []
 app.loadedModules = []
 app.version = '1.3'
 app.hasUpdate = False
-
-#d = {
-#"file": 'stripe.py',
-#"name": 'Stripe',
-#"type": 'v1',
-#"version": '1.3',
-#"description": 'The Core Stripe Billing Module for LoonaBilling (Unofficial)',
-#"category": 'payments'
-#}
-#with open('pp.json', 'w+') as of:
-#    json.dump(d, of)
-
-#with open('pp.json') as of:
-#    data = json.load(of)
-#    print(data['name'])
 
 def cf(folder):
     try:
