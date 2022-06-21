@@ -91,7 +91,9 @@ def deleteCategory():
 def createProduct():
     if request.method == 'POST':
         print(request.form)
+        #print(request.files)
         description = ''
+        image = None
         if 'description' in request.form:
             description = request.form['description']
         if 'title' not in request.form:
@@ -99,6 +101,11 @@ def createProduct():
         elif 'price' not in request.form:
             return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), msg='Price is missing', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
         else:
+            itemID = len(os.listdir('products/{}'.format(request.form['category'])))
+            #fles = request.files
+            for f in request.files:
+                image = 'static/assets/prodimages/{}.{}'.format(itemID, request.files[f].filename.split('.')[-1])
+                request.files[f].save(image)
             price = request.form['price']
             if '.' not in request.form['price']:
                 price = request.form['price'] + '00' # Stripe uses the 2 numbers on the end for cents
@@ -114,12 +121,12 @@ def createProduct():
             'description': description,
             'price': price.replace('.', ''),
             'automation': None,
-            'image': None,
+            'image': image,
             'provider': request.form['paypro'],
             'removed': False,
             'currency': request.form['currency']
             })
-            with open('products/{}/{}.json'.format(request.form['category'], len(os.listdir('products/{}'.format(request.form['category'])))), 'w+') as of:
+            with open('products/{}/{}.json'.format(request.form['category'], itemID), 'w+') as of:
                 json.dump(data, of)
             return render_template('core/LoonaProducts/adminCreateProduct.html', payments=paypro, categories=os.listdir('products'), msg=f'Created Product: {request.form["title"]}', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
     return render_template('core/LoonaProducts/adminCreateProduct.html', payments=paypro, categories=os.listdir('products'), businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)

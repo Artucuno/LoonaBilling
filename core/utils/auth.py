@@ -26,8 +26,8 @@ def verify_password(username, password):
     users = {
         "admin": open('setup', 'rb').read(),
     }
-    print(str(users['admin']))
-    print(str(encKey(password)))
-    print(users["admin"] == encKey(password))
+    #print(str(users['admin']))
+    #print(str(encKey(password)))
+    #print(users["admin"] == encKey(password))
     if username in users and users["admin"] == encKey(password):
         return username
