@@ -169,7 +169,9 @@ div.content {
 {% for f in items %}
 
   <div class="card">
+    {% if f[5] != None %}
     <img src="/{{ f[5] }}" alt="{{ f[0] }}" style="width:100%">
+    {% endif %}
     <h1>{{ f[0] }}</h1>
     <p class="price">${{ f[1] }}</p>
     <p>{{ f[2] }}</p>

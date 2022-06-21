@@ -10,7 +10,7 @@ for root, dirs, files in os.walk(".", topdown=False):
 try:
     os.remove('setup')
 except:
-    pass
+    input(e)
 
 try:
     shutil.rmtree('products')

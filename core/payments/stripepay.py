@@ -4,6 +4,7 @@ from jinja2 import TemplateNotFound
 import stripe
 import config
 import os
+from werkzeug.utils import secure_filename
 from core.utils.auth import auth
 
 stripe.api_version = '2020-08-27'
@@ -51,12 +52,14 @@ def Stripe_startSession():
 
         # ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
         print(request.args)
+        ritem = secure_filename(request.args['item'])
+        rcate = secure_filename(request.args['category'])
         if 'category' not in request.args:
             return render_template('error.html', msg='No category was specified.', businessName=config.businessName)
         if 'item' not in request.args:
             return render_template('error.html', msg='No item ID was specified.', businessName=config.businessName)
-        if os.path.isdir('products/{}'.format(request.args['category'])):#, request.args['item'])):
-            with open('products/{}/{}.json'.format(request.args['category'], request.args['item'])) as of:
+        if os.path.isdir('products/{}'.format(rcate)):#, request.args['item'])):
+            with open('products/{}/{}.json'.format(rcate, ritem)) as of:
                 data = json.load(of)
                 for p in data['Config']:
 
