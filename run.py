@@ -26,7 +26,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from art import *
 import requests
 import git
-from flask_socketio import *
+#from flask_socketio import *
 from werkzeug.security import generate_password_hash, check_password_hash
 import getpass
 from core.utils.auth import auth
