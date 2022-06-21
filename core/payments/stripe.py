@@ -4,6 +4,7 @@ from jinja2 import TemplateNotFound
 import stripe
 import config
 import os
+from core.utils.auth import auth
 module = Blueprint('Stripe', __name__)
 module.hasAdminPage = True
 module.moduleDescription = 'The Core Stripe Billing Module for LoonaBilling (Unofficial)'
@@ -23,31 +24,21 @@ def cf(folder):
 
 def checks():
     try:
-        import configs.stripe.config as stripeConfig
-        stripe.api_version = stripeConfig.api_version
+        stripe.api_version = '2020-08-27'
 
         if os.path.isfile('configs/stripe/privateKey.txt'):
             with open('configs/stripe/privateKey.txt', 'r') as of:
                 stripe.api_key = of.read().strip()
-        #print(stripe.Charge.list(limit=3))
     except Exception as e:
         print(e)
         cf('configs/stripe')
-        a = open('configs/stripe/config.py', 'w+').write('''# This is not an official module made by Stripe.
-api_version = '2020-08-27'
-''')
-        try:
-            import configs.stripe.config as stripeConfig
-            print("Stripe config was created. Please update the config located at configs/stripe/config.py")
-        except:
-            print('ERROR: STRIPE CONFIG NOT FOUND')
 
     cf('products')
 
 checks()
 
-@module.route('/startSession')
-def startSession():
+@module.route(f'/{module.name}/startSession')
+def Stripe_startSession():
     try:
         # Create new Checkout Session for the order
         # Other optional params include:
@@ -60,9 +51,9 @@ def startSession():
         # ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
         print(request.args)
         if 'category' not in request.args:
-            return 'Needs category'
+            return render_template('error.html', msg='No category was specified.', businessName=config.businessName)
         if 'item' not in request.args:
-            return 'Needs item'
+            return render_template('error.html', msg='No item ID was specified.', businessName=config.businessName)
         if os.path.isdir('products/{}'.format(request.args['category'])):#, request.args['item'])):
             with open('products/{}/{}.json'.format(request.args['category'], request.args['item'])) as of:
                 data = json.load(of)
@@ -77,7 +68,7 @@ def startSession():
                             {
                                 "name": str(p['title']),
                                 "quantity": 1,
-                                "currency": "usd",
+                                "currency": str(p['currency']).lower(),
                                 "amount": int(p['price'].replace('.', '')),
                                 "description": str(p['description']),
                                 #"metadata": {'category': request.args['category'], 'itemID': request.args['item'], 'item': p['title']},
@@ -100,6 +91,7 @@ def cancelled():
     return render_template('core/Stripe/paymentCancelled.html', businessName=config.businessName)
 
 @module.route('/admin/{}/listPurcahses'.format(module.name))
+@auth.login_required
 def adminListPurchases():
     try:
         bal = stripe.Balance.retrieve()["available"][0]["amount"]
@@ -116,6 +108,7 @@ def adminListPurchases():
         return 'Unable to get. Have you added an API Key?'
 
 @module.route('/admin/{}'.format(module.name))
+@auth.login_required
 def adminPage():
     try:
         bal = stripe.Balance.retrieve()["available"][0]["amount"]
@@ -125,6 +118,7 @@ def adminPage():
     return render_template('core/Stripe/admin.html', bal=bal, businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/manageKeys'.format(module.name), methods=['GET', 'POST'])
+@auth.login_required
 def adminManageKeys():
     if 'publishableKey' in request.form:
         open('configs/stripe/publishableKey.txt', 'w+').write(request.form['publishableKey'].strip())

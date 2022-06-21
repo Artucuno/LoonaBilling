@@ -57,6 +57,10 @@ def store():
             with open(os.path.join('products/', category, f)) as of:
                 data = json.load(of)
                 for p in data['Config']:
-                    items += [(p['title'], p['price'], p['description'], f.split('.')[0])]
+                    prc = list(p['price'])
+                    prc.insert(-2, '.')
+                    print(prc)
+                    #print(list(p['price']).insert(-2, '.'))
+                    items += [(p['title'], ''.join(prc), p['description'], f.split('.')[0], p['provider'])]
 
     return render_template('core/LoonaStore/index.html', businessName=config.businessName, categories=categories, items=items, category=category)

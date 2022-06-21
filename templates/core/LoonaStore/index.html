@@ -173,7 +173,7 @@ div.content {
     <h1>{{ f[0] }}</h1>
     <p class="price">${{ f[1] }}</p>
     <p>{{ f[2] }}</p>
-    <a href='/startSession?category={{ category }}&item={{ f[3] }}'><button>Add to Cart</button></a>
+    <a href='/{{ f[4] }}/startSession?category={{ category }}&item={{ f[3] }}'><button>Add to Cart</button></a>
   </div>
 {% endfor %}
 </div>

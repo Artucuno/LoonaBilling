@@ -1,11 +1,16 @@
 # Simple script to push updates
 import sys, os
 import shutil
-
+# https://stackoverflow.com/questions/41836988/git-push-via-gitpython
 for root, dirs, files in os.walk(".", topdown=False):
     for name in dirs:
         if name == '__pycache__':
             shutil.rmtree(os.path.join(root, name))
+
+try:
+    os.remove('setup')
+except:
+    pass
 
 try:
     shutil.rmtree('products')
