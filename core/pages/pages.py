@@ -3,7 +3,7 @@ from jinja2 import TemplateNotFound
 import config
 import os
 module = Blueprint('Pages', __name__)
-module.hasAdminPage = True
+module.hasAdminPage = False # Will be added back soon
 module.moduleDescription = 'Simple pages for LoonaBilling'
 module.version = '1.1'
 
