@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>{{ businessName }} - Contact</title>
+<title>{{ search }} - Search</title>
 <link rel="stylesheet" href="/static/fontawesome/css/all.css">
 <style>
 * {box-sizing: border-box;}
@@ -83,12 +83,11 @@ body {
 <body>
 {% include 'divs/navbar.html' %}
 <div style="padding-left:16px">
-  <h2>Contact</h2>
-  <form method="POST">
-    <input type="text" name="fullname" placeholder="Full name *" required>
-    <input type="email" name="email" placeholder="Email *" required><br>
-    <textarea name="message" rows="8" cols="80"></textarea><br>
-    <button type="submit">Submit</button>
+  <h2>Results for {{ search }}</h2>
+  <hr>
+  {% for f in searches %}
+  <p><a href="{{ f[0] }}">{{ f[1] }}</a></p>
+  {% endfor %}
 </div>
 
 </body>

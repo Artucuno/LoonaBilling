@@ -123,7 +123,7 @@ div.content {
         </select>
         <select name='paypro' required>
           {% for f in payments %}
-          <option value="{{ f }}">{{ f }}</a>
+          <option value="{{ f.name }}">{{ f.name }}</a>
           {% endfor %}
         </select>
         <button type="submit">Add Product</button>

@@ -62,20 +62,18 @@ div.content {
 <body>
 
 <div class="sidebar">
-  <a href="/admin">Back</a>
+  <a href="/admin/{{ moduleName }}">Back</a>
   <a class="active">Current</a>
 </div>
 
 <div class="content">
-  <h2>Manage {{ moduleName }} - Balance ${{ bal }}</h2>
+  <h2>Edit Settings - {{ moduleName }}</h2>
   <p>{{ moduleDescription }}</h3>
     <hr>
     <h2>Management</h2>
-    <div style="float: left">
-      <a href="/admin/{{ moduleName }}/listPurcahses">Dashboard</a>
-      <a href="/admin/{{ moduleName }}/manageKeys">Manage API Keys</a>
-      <a href="/admin/{{ moduleName }}/emailSettings">Email Settings</a>
-    </div>
+    <form method="POST">
+      <input type="text" name='mailServer' placeholder="Mail Server" required>
+    </form>
 </div>
 
 </body>

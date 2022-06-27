@@ -9,7 +9,7 @@ for root, dirs, files in os.walk(".", topdown=False):
 
 try:
     os.remove('setup')
-except:
+except Exception as e:
     input(e)
 
 try:
