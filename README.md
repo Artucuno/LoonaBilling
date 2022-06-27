@@ -3,7 +3,7 @@
 # LoonaBilling
 <img src="https://img.shields.io/discord/887501133902385202?logo=discord&style=social"> <img src="https://img.shields.io/github/last-commit/Loona-cc/LoonaBilling?logo=github&style=social"> <img src="https://img.shields.io/github/workflow/status/Loona-cc/LoonaBilling/CodeQL?logo=github-sponsors&style=social">
 
-![Installation](https://github.com/Loona-cc/LoonaBilling/wiki/Installation) / ![Screenshots](https://github.com/Loona-cc/LoonaBilling/wiki/Screenshots) / ![Discord](https://discord.gg/KTJNHyAh2e)
+[Installation](https://github.com/Loona-cc/LoonaBilling/wiki/Installation) / [Screenshots](https://github.com/Loona-cc/LoonaBilling/wiki/Screenshots) / [Discord](https://discord.gg/KTJNHyAh2e)
 
 A WIP Open-source WHMCS alternative.
 
