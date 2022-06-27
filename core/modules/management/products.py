@@ -11,14 +11,12 @@ from werkzeug.utils import secure_filename
 from core.utils.auth import auth
 
 # TODO:
-# Add currency AUD/USD products
 # Add automation API selection
-# Add images to products
 
 module = Blueprint('Products', __name__)
 module.hasAdminPage = True
 module.moduleDescription = 'The Core Product Management Module for LoonaBilling'
-module.version = '1.2'
+module.version = '1.4'
 
 def cf(folder):
     try:
@@ -30,7 +28,7 @@ def cf(folder):
 
 mods = {}
 paypro = []
-for path, dirs, files in os.walk("core/payments", topdown=False):
+for path, dirs, files in os.walk("core/modules/payments", topdown=False):
     for fname in files:
         try:
             name, ext = os.path.splitext(fname)
@@ -38,7 +36,7 @@ for path, dirs, files in os.walk("core/payments", topdown=False):
                 f, filename, descr = imp.find_module(name, [path])
                 mods[fname] = imp.load_module(name, f, filename, descr)
                 #print(getattr(mods[fname], 'module').name)
-                paypro += [getattr(mods[fname], 'module').name]
+                paypro += [getattr(mods[fname], 'module')]
                 print(Fore.GREEN + f'[{module.name}] ' + Style.RESET_ALL + 'Imported', mods[fname].module.name)
                 #globals()
         except Exception as e:
@@ -90,10 +88,11 @@ def deleteCategory():
 @auth.login_required
 def createProduct():
     if request.method == 'POST':
-        print(request.form)
-        print(request.files)
+        #print(request.form)
+        #print(request.files)
         description = ''
         image = None
+        rgs = {}
         if 'description' in request.form:
             description = request.form['description']
         if 'title' not in request.form:
@@ -102,10 +101,8 @@ def createProduct():
             return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), msg='Price is missing', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
         else:
             itemID = len(os.listdir('products/{}'.format(secure_filename(request.form['category']))))
-            #fles = request.files
             if 'prodImage' in request.files:
                 if request.files['prodImage'].filename != '':
-                    print('image safas')
                     image = 'static/assets/prodimages/{}.{}'.format(itemID, secure_filename(request.files['prodImage'].filename.split('.')[-1]))
                     request.files['prodImage'].save(image)
             price = request.form['price']
@@ -116,6 +113,10 @@ def createProduct():
                     price += '0'
                 if len(price.split('.')[1]) > 2:
                     price = price.replace(price.split('.')[1], str(round(float(price.split('.')[1]), 2)))
+            for f in mods:
+                if getattr(mods[f], 'module').name == str(request.form['paypro']):
+                    rgs = getattr(mods[f], 'createProduct')(request.form, image, description, price)
+                    print(rgs)
             data = {}
             data['Config'] = []
             data['Config'].append({
@@ -126,7 +127,8 @@ def createProduct():
             'image': image,
             'provider': request.form['paypro'],
             'removed': False,
-            'currency': request.form['currency']
+            'currency': request.form['currency'],
+            'args': rgs
             })
             with open('products/{}/{}.json'.format(secure_filename(request.form['category']), itemID), 'w+') as of:
                 json.dump(data, of)

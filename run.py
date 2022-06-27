@@ -1,10 +1,12 @@
 import time
 import logging
-logging.basicConfig(filename='logs/'+str(time.time()),
-                    filemode='a',
-                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
+lf = True
+if lf == True:
+    logging.basicConfig(filename='logs/'+str(time.time()),
+                        filemode='a',
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.DEBUG)
 import sys, os
 import json
 from flask import Flask
@@ -24,19 +26,19 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from art import *
 import requests
-import git
-#from flask_socketio import *
-from werkzeug.security import generate_password_hash, check_password_hash
 import getpass
+import git
+from werkzeug.security import generate_password_hash, check_password_hash
 from core.utils.auth import auth
 
+print(os.getpid()) # Checking resource usage for pid
 tprint("LoonaBilling")
 init()
 
 app = Flask(__name__)
 app.adminModules = []
 app.loadedModules = []
-app.version = '1.3'
+app.version = '1.4'
 app.hasUpdate = False
 
 def cf(folder):
@@ -65,11 +67,10 @@ def checks():
     cf('modules/user')
     cf('modules/admin')
     cf('core')
-    cf('core/payments')
     cf('products')
     cf('logs')
     try:
-        x = requests.get('https://raw.githubusercontent.com/Loona-cc/LoonaBilling/main/version', timeout=4)
+        x = requests.get('https://raw.githubusercontent.com/Loona-cc/LoonaBilling/main/version', timeout=3)
         if x.text.strip() != app.version:
             app.hasUpdate = True
         else:
@@ -80,7 +81,7 @@ def checks():
         tprint("Setup")
         adPass = getpass.getpass('Enter new admin password >>> ')
         key = encKey(adPass)
-        input(key)
+        #input(key)
         with open('setup', 'wb') as of:
             of.write(key)
         of.close()
@@ -102,7 +103,7 @@ checks()
 def load_blueprints():
     mods = {}
 
-    for path, dirs, files in os.walk("core", topdown=False):
+    for path, dirs, files in os.walk("core/modules", topdown=False):
         for fname in files:
             try:
                 name, ext = os.path.splitext(fname)
@@ -124,7 +125,7 @@ def load_blueprints():
                     f, filename, descr = imp.find_module(name, [path])
                     mods[fname] = imp.load_module(name, f, filename, descr)
                     #print(getattr(mods[fname]))
-                    app.register_blueprint(getattr(mods[fname], 'module'), url_prefix=f'/{name}')
+                    app.register_blueprint(getattr(mods[fname], 'module'), url_prefix=f'/{mods[fname].module.name}')
                     print(Fore.GREEN + '[Module] ' + Style.RESET_ALL + 'Imported', mods[fname].module.name)
                     #globals()
             except Exception as e:
@@ -142,53 +143,12 @@ for f in mods:
             app.adminModules += [(mods[f].module.name, mods[f].module.moduleDescription, mods[f].module.version, mods[f].module.hasAdminPage)]
     except Exception as e:
         print(f, e)
+print(Fore.GREEN + '[LoonaBilling] ' + Style.RESET_ALL + 'Loaded', len(mods), 'modules')
 
 @app.route('/admin')
 @auth.login_required
 def admin():
     return render_template('core/admin.html', tabs=app.adminModules, map=app.url_map, cpuUsage=int(psutil.cpu_percent()), ramUsage=int(psutil.virtual_memory().percent), storageUsage=int(psutil.disk_usage('/').percent))
-
-@app.route('/admin/modules', methods=['GET', 'POST'])
-@auth.login_required
-def adminModules():
-    br = []
-    x = requests.get("https://api.github.com/repos/Loona-cc/LoonaBilling-Modules/branches")
-    dataBranches = json.loads(x.text)
-    for f in dataBranches:
-        br += [f['name']]
-    if request.method == 'POST':
-        print(request.form)
-        for f in request.form:
-            try:
-                n = f.split('-')
-                if n[0] == 'install':
-                    if str(n[1].strip()) in br:
-                        try:
-                            resp = requests.get(f"https://raw.githubusercontent.com/Loona-cc/LoonaBilling-Modules/{n[1]}/config.json")
-                            data = json.loads(resp.text)
-                            print(data)
-                            res = git.Git("").clone("https://github.com/Loona-cc/LoonaBilling-Modules", f"modules/{data['category']}/{n[1]}", branch=n[1])
-                        except Exception as e:
-                            print(n[1], e)
-            except:
-                pass
-    x = requests.get("https://api.github.com/repos/Loona-cc/LoonaBilling-Modules/branches")
-    dataBranches = json.loads(x.text)
-    avMods = []
-    for f in br:
-        try:
-            print(f)
-            try:
-                resp = requests.get(f"https://raw.githubusercontent.com/Loona-cc/LoonaBilling-Modules/{f}/config.json")
-                data = json.loads(resp.text)
-                print(data)
-                avMods += [(data['name'], data['description'], data['version'])]
-            except Exception as e:
-                print(f, e)
-        except Exception as e:
-            print(e)
-    return render_template('core/adminModules.html', mods=avMods, adminModules=adminModules, tabs=app.adminModules, map=app.url_map, cpuUsage=int(psutil.cpu_percent()), ramUsage=int(psutil.virtual_memory().percent), storageUsage=int(psutil.disk_usage('/').percent))
-
 
 @app.errorhandler(404)
 def page_not_found(e):

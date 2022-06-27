@@ -67,15 +67,11 @@ div.content {
 </div>
 
 <div class="content">
-  <h2>Manage {{ moduleName }} - Balance ${{ bal }}</h2>
+  <h2>Manage {{ moduleName }}</h2>
   <p>{{ moduleDescription }}</h3>
     <hr>
     <h2>Management</h2>
-    <div style="float: left">
-      <a href="/admin/{{ moduleName }}/listPurcahses">Dashboard</a>
-      <a href="/admin/{{ moduleName }}/manageKeys">Manage API Keys</a>
-      <a href="/admin/{{ moduleName }}/emailSettings">Email Settings</a>
-    </div>
+    <a href="/admin/{{ moduleName }}/editSettings">Edit Mail Settings</a>
 </div>
 
 </body>

@@ -20,20 +20,20 @@ def cf(folder):
         return
 
 def checks():
-    try:
-        import configs.store.config as storeConfig
-    except:
-        cf('configs/store')
-        cf('configs/store/data')
-        a = open('configs/store/config.py', 'w+').write('''# Core Module Config
-
-
-''')
-        try:
-            import configs.store.config as storeConfig
-            print("Store config was created. Please update the config located at configs/store/config.py")
-        except:
-            print('ERROR: STORE CONFIG NOT FOUND')
+#    try:
+#        import configs.store.config as storeConfig
+#    except:
+#        cf('configs/store')
+#        cf('configs/store/data')
+#        a = open('configs/store/config.py', 'w+').write('''# Core Module Config
+#
+#
+#''')
+#        try:
+#            import configs.store.config as storeConfig
+#            print("Store config was created. Please update the config located at configs/store/config.py")
+#        except:
+#            print('ERROR: STORE CONFIG NOT FOUND')
 
     cf('products')
 
@@ -47,13 +47,11 @@ def store():
         category = secure_filename(request.args['category'])
     if 'item' in request.args:
         item = request.args['item']
-    #if category == '':
-    #    return str(os.listdir('products'))
     categories = []
     items = []
     for f in os.listdir('products/{}'.format(category)):
         if os.path.isdir(os.path.join('products/', category, f)):
-            print('folder')
+            #print('folder')
             categories += [f]
         if os.path.isfile(os.path.join('products/', category, f)):
             with open(os.path.join('products/', category, f)) as of:
@@ -61,8 +59,7 @@ def store():
                 for p in data['Config']:
                     prc = list(p['price'])
                     prc.insert(-2, '.')
-                    print(prc)
-                    #print(list(p['price']).insert(-2, '.'))
+                    #print(prc)
                     items += [(p['title'], ''.join(prc), p['description'], f.split('.')[0], p['provider'], p['image'])]
 
     return render_template('core/LoonaStore/index.html', businessName=config.businessName, categories=categories, items=items, category=category)
