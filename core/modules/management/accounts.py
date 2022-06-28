@@ -43,7 +43,7 @@ try:
         redirect_uri=config.domain_url+"callback/google"
     )
 except:
-    pass
+    print(f'[{module.name}] Unable to load Google Flow')
 
 hcaptcha = hCaptcha(module)
 #discord = DiscordOAuth2Session(module)
