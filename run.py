@@ -41,7 +41,7 @@ init()
 app = Flask(__name__)
 app.adminModules = []
 app.loadedModules = []
-app.version = '1.6'
+app.version = '1.8'
 app.hasUpdate = False
 app.secret_key = str(getnode()).encode()
 
