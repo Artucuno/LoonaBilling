@@ -3,12 +3,14 @@ from jinja2 import TemplateNotFound
 from flask import *
 from flask_hcaptcha import hCaptcha
 from werkzeug.utils import secure_filename
-from core.utils.auth import hauth
-from core.utils import auth
 import pathlib
 import requests
 import config
 import sys, os
+
+from core.utils.auth import hauth
+from core.utils import auth
+from core.utils import files
 
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
@@ -28,22 +30,11 @@ module.config['HCAPTCHA_SITE_KEY'] = ""
 module.config['HCAPTCHA_SECRET_KEY'] = ""
 # Google Login
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-GOOGLE_CLIENT_ID = ""
-client_secrets_file = "client_secret.json"
 # Discord Login
 #os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "true"      # !! Only in development environment.
 #module.config["DISCORD_CLIENT_ID"] =     # Discord client ID.
 #module.config["DISCORD_CLIENT_SECRET"] = ""                # Discord client secret.
 #module.config["DISCORD_REDIRECT_URI"] = config.domain_url+"callback/discord"                 # URL to your callback endpoint.
-
-try:
-    flow = Flow.from_client_secrets_file(
-        client_secrets_file=client_secrets_file,
-        scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-        redirect_uri=config.domain_url+"callback/google"
-    )
-except:
-    print(f'[{module.name}] Unable to load Google Flow')
 
 hcaptcha = hCaptcha(module)
 #discord = DiscordOAuth2Session(module)
@@ -60,12 +51,43 @@ def checks():
     cf('data')
     cf('data/user')
     cf('data/states')
+    cf('configs/accounts')
+    if not os.path.isfile('configs/accounts/google.json'):
+        data = {}
+        data['Config'] = []
+        data['Config'].append({
+        'enabled': True,
+        'client_id': '',
+        'file': 'configs/accounts/client_secret.json'
+        })
+        with open('configs/accounts/google.json', 'w+') as of:
+            json.dump(data, of)
+    try:
+        with open('configs/accounts/google.json') as of:
+            dt = json.load(of)
+            for p in dt['Config']:
+                try:
+                    module.GOOGLE_CLIENT_ID = p['client_id']
+                except Exception as e:
+                    print(e)
+                    module.GOOGLE_CLIENT_ID = ''
+                try:
+                    module.flow = Flow.from_client_secrets_file(
+                        client_secrets_file='configs/accounts/client_secret.json',
+                        scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
+                        redirect_uri=config.domain_url+"callback/google"
+                    )
+                except Exception as e:
+                    print(f'[{module.name}] Unable to load Google Flow')#, e)
+    except Exception as e:
+        print('Accounts checks', e)
+
 
 @module.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         if 'login-google' in request.form:
-            authorization_url, state = flow.authorization_url()  #asking the flow class for the authorization (login) url
+            authorization_url, state = module.flow.authorization_url()  #asking the flow class for the authorization (login) url
             session["state"] = state
             with open(f'data/states/{state}', 'w+') as of:
                 of.write('login')
@@ -104,7 +126,7 @@ def login():
 def register():
     if request.method == 'POST':
         if 'signup-google' in request.form:
-            authorization_url, state = flow.authorization_url()  #asking the flow class for the authorization (login) url
+            authorization_url, state = module.flow.authorization_url()  #asking the flow class for the authorization (login) url
             session["state"] = state
             with open(f'data/states/{state}', 'w+') as of:
                 of.write('register')
@@ -163,13 +185,13 @@ def logout():
 
 @module.route("/callback/google") # Google Callback
 def callback_google():
-    flow.fetch_token(authorization_response=request.url)
+    module.flow.fetch_token(authorization_response=request.url)
     #print(session['state'])
 
     if not session["state"] == request.args["state"]:
         abort(500)  #state does not match!
 
-    credentials = flow.credentials
+    credentials = module.flow.credentials
     request_session = requests.session()
     cached_session = cachecontrol.CacheControl(request_session)
     token_request = google.auth.transport.requests.Request(session=cached_session)
@@ -177,7 +199,7 @@ def callback_google():
     id_info = id_token.verify_oauth2_token(
         id_token=credentials._id_token,
         request=token_request,
-        audience=GOOGLE_CLIENT_ID
+        audience=module.GOOGLE_CLIENT_ID
     )
     #print(id_info)
     try:
@@ -249,6 +271,26 @@ def dashboard():
 @module.route('/admin/{}'.format(module.name))
 @hauth.login_required
 def adminPage():
-    return render_template('core/Stripe/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/Accounts/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+
+@module.route('/admin/{}/manageAccounts'.format(module.name), methods=['GET', 'POST'])
+@hauth.login_required
+def adminManageAccounts():
+    if request.method == 'POST':
+        if 'clientFile' in request.files:
+            if request.files['clientFile'].filename != '':
+                request.files['clientFile'].save('configs/accounts/client_secret.json')
+                try:
+                    module.flow = Flow.from_client_secrets_file(
+                        client_secrets_file='configs/accounts/client_secret.json',
+                        scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
+                        redirect_uri=config.domain_url+"callback/google"
+                    )
+                except Exception as e:
+                    print(f'[{module.name}] Unable to load Google Flow', e)
+        if 'clientID' in request.form:
+            files.updateJSON('configs/accounts/google.json', 'client_id', request.form['clientID'])
+    return render_template('core/Accounts/adminManageAccounts.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+
 
 checks()
