@@ -19,12 +19,12 @@ A WIP Open-source WHMCS alternative.
 - [x] Storefront
 - [ ] Email Sending (W.I.P)
 - [x] Website Search (W.I.P)
+- [x] User Management (W.I.P)
+  - [ ] Affiliate Accounts
+  - [ ] Reseller Accounts
 
 # TODO
 - [ ] Shopping Cart
-- [ ] User Management
-  - [ ] Affiliate Accounts
-  - [ ] Reseller Accounts
 - [ ] Domain Management/Reselling
   - [ ] DNS Management
   - [ ] ID Management

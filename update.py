@@ -18,6 +18,11 @@ except Exception as e:
     input(e)
 
 try:
+    shutil.rmtree('data')
+except Exception as e:
+    input(e)
+
+try:
     shutil.rmtree('static/assets/prodimages')
 except Exception as e:
     input(e)

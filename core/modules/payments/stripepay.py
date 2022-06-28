@@ -5,7 +5,7 @@ import stripe
 import config
 import os
 from werkzeug.utils import secure_filename
-from core.utils.auth import auth
+from core.utils.auth import hauth
 
 stripe.api_version = '2020-08-27'
 
@@ -110,7 +110,7 @@ def cancelled():
     return render_template('core/Stripe/paymentCancelled.html', businessName=config.businessName)
 import sys
 @module.route('/admin/{}/listPurcahses'.format(module.name), methods=['GET', 'POST'])
-@auth.login_required
+@hauth.login_required
 def adminListPurchases():
     if request.method == 'POST':
         print(request.form)
@@ -157,7 +157,7 @@ def adminListPurchases():
         return 'Unable to get. Have you added an API Key?'
 
 @module.route('/admin/{}'.format(module.name))
-@auth.login_required
+@hauth.login_required
 def adminPage():
     try:
         bal = stripe.Balance.retrieve()["available"][0]["amount"]
@@ -167,13 +167,13 @@ def adminPage():
     return render_template('core/Stripe/admin.html', bal=bal, businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/emailSettings'.format(module.name))
-@auth.login_required
+@hauth.login_required
 def adminEmailSettings():
     return render_template('core/Stripe/adminEmailSettings.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 
 @module.route('/admin/{}/manageKeys'.format(module.name), methods=['GET', 'POST'])
-@auth.login_required
+@hauth.login_required
 def adminManageKeys():
     if 'publishableKey' in request.form:
         open('configs/stripe/publishableKey.txt', 'w+').write(request.form['publishableKey'].strip())
