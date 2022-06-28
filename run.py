@@ -2,7 +2,7 @@ import time
 import logging
 lf = True
 if lf == True:
-    logging.basicConfig(filename='logs/'+str(time.time()),
+    logging.basicConfig(filename='logs/'+str(time.time())+'.log',
                         filemode='a',
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                         datefmt='%H:%M:%S',
@@ -29,7 +29,7 @@ import requests
 import getpass
 import git
 from werkzeug.security import generate_password_hash, check_password_hash
-from core.utils.auth import auth
+from core.utils.auth import hauth
 
 print(os.getpid()) # Checking resource usage for pid
 tprint("LoonaBilling")
@@ -38,8 +38,9 @@ init()
 app = Flask(__name__)
 app.adminModules = []
 app.loadedModules = []
-app.version = '1.4'
+app.version = '1.6'
 app.hasUpdate = False
+app.secret_key = str(getnode()).encode()
 
 def cf(folder):
     try:
@@ -146,7 +147,7 @@ for f in mods:
 print(Fore.GREEN + '[LoonaBilling] ' + Style.RESET_ALL + 'Loaded', len(mods), 'modules')
 
 @app.route('/admin')
-@auth.login_required
+@hauth.login_required
 def admin():
     return render_template('core/admin.html', tabs=app.adminModules, map=app.url_map, cpuUsage=int(psutil.cpu_percent()), ramUsage=int(psutil.virtual_memory().percent), storageUsage=int(psutil.disk_usage('/').percent))
 

@@ -4,7 +4,7 @@ from jinja2 import TemplateNotFound
 import config
 import os
 from werkzeug.utils import secure_filename
-from core.utils.auth import auth
+from core.utils.auth import hauth
 
 module = Blueprint('Mail', __name__)
 module.hasAdminPage = True
@@ -26,11 +26,11 @@ def checks():
 checks()
 
 @module.route('/admin/{}'.format(module.name))
-@auth.login_required
+@hauth.login_required
 def adminPage():
     return render_template('core/Mail/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/editSettings'.format(module.name))
-@auth.login_required
+@hauth.login_required
 def editSettings():
     return render_template('core/Mail/adminEditSettings.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)

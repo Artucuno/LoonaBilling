@@ -4,7 +4,7 @@ import config
 import os
 from flask import *
 from werkzeug.utils import secure_filename
-from core.utils.auth import auth
+from core.utils.auth import hauth
 import config
 
 module = Blueprint('Search', __name__)

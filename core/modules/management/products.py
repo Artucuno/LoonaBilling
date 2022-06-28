@@ -8,7 +8,7 @@ from colorama import init
 import imp
 import json
 from werkzeug.utils import secure_filename
-from core.utils.auth import auth
+from core.utils.auth import hauth
 
 # TODO:
 # Add automation API selection
@@ -54,12 +54,12 @@ def checks():
 checks()
 
 @module.route('/admin/{}'.format(module.name))
-@auth.login_required
+@hauth.login_required
 def adminPage():
     return render_template('core/LoonaProducts/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/createCategory'.format(module.name), methods=['GET', 'POST'])
-@auth.login_required
+@hauth.login_required
 def createCategory():
     if request.method == 'POST':
         try:
@@ -71,7 +71,7 @@ def createCategory():
     return render_template('core/LoonaProducts/adminCreateCategory.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/deleteCategory'.format(module.name), methods=['GET', 'POST'])
-@auth.login_required
+@hauth.login_required
 def deleteCategory():
     if request.method == 'POST':
         try:
@@ -85,7 +85,7 @@ def deleteCategory():
 
 
 @module.route('/admin/{}/createProduct'.format(module.name), methods=['GET', 'POST'])
-@auth.login_required
+@hauth.login_required
 def createProduct():
     if request.method == 'POST':
         #print(request.form)

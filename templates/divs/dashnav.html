@@ -1,9 +1,13 @@
 <div class="topnav">
   <a class="active" href="/">{{ businessName }}</a>
-  <a href="/">Home</a>
-  <a href="/store">Store</a>
-  <a href="/about">About</a>
-  <a href="/contact">Contact</a>
+  <div class="dropdown">
+    <button class="dropbtn">Services
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content">
+      <a href="/store">Order new services</a>
+    </div>
+  </div>
   <div class="search-container">
     <form action="/search">
       <input type="text" placeholder="Search.." name="search">
