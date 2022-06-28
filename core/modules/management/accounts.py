@@ -273,9 +273,9 @@ def dashboard():
 def adminPage():
     return render_template('core/Accounts/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
-@module.route('/admin/{}/manageAccounts'.format(module.name), methods=['GET', 'POST'])
+@module.route('/admin/{}/manageGoogle'.format(module.name), methods=['GET', 'POST'])
 @hauth.login_required
-def adminManageAccounts():
+def adminManageGoogle():
     if request.method == 'POST':
         if 'clientFile' in request.files:
             if request.files['clientFile'].filename != '':
@@ -290,7 +290,8 @@ def adminManageAccounts():
                     print(f'[{module.name}] Unable to load Google Flow', e)
         if 'clientID' in request.form:
             files.updateJSON('configs/accounts/google.json', 'client_id', request.form['clientID'])
-    return render_template('core/Accounts/adminManageAccounts.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+            module.GOOGLE_CLIENT_ID = request.form['clientID']
+    return render_template('core/Accounts/adminManageGoogle.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
 
 
 checks()
