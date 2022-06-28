@@ -20,8 +20,13 @@ A WIP Open-source WHMCS alternative.
 - [ ] Email Sending (W.I.P)
 - [x] Website Search (W.I.P)
 - [x] User Management (W.I.P)
+  - [x] Basic Accounts
   - [ ] Affiliate Accounts
   - [ ] Reseller Accounts
+- [x] Multiple Login Methods
+  - [x] Email Login
+  - [ ] Google Login
+  - [ ] Discord Login
 
 # TODO
 - [ ] Shopping Cart
