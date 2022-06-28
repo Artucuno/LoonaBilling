@@ -16,7 +16,10 @@ def login_is_required(function):
         if "user" not in session:
             return redirect(url_for('Accounts.login'))
         else:
-            return function()
+            if isAuth(session['user']):
+                return function()
+            else:
+                return redirect(url_for('Accounts.login'))
 
     return wrapper
 
@@ -45,8 +48,8 @@ def getID(email):
     return False
 
 def logAuth(form):
-    print(form)
-    print(form['Config'][0]['ID'])
+    #print(form)
+    #print(form['Config'][0]['ID'])
     try:
         with open(f'data/user/{form["Config"][0]["ID"]}/config.json') as of:
             data = json.load(of)
@@ -55,14 +58,16 @@ def logAuth(form):
                     if p['password'] == form['Config'][0]['password']:
                         return data
     except Exception as e:
-        print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(e, exc_type, fname, exc_tb.tb_lineno)
     return False
 
 def isAuth(sess):
-    print(type(sess))
+    #print(type(sess))
     try:
         data = json.loads(sess)
-        print(data)
+        #print(data)
         for p in data['Config']:
             with open(f"data/user/{p['ID']}/config.json") as of:
                 dt = json.load(of)

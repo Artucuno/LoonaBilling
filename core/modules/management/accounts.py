@@ -60,8 +60,8 @@ def login():
         })
         user = auth.logAuth(data)
         if user != False:
-            print(user)
-            print('a')
+            #print(user)
+            #print('a')
             session['user'] = json.dumps(user)
             print(session['user'])
             return redirect(url_for('Accounts.dashboard'))
@@ -89,13 +89,15 @@ def register():
             return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=config.businessName)
         userID = auth.getUserCount()
         cf('data/user/{}'.format(userID))
-        data = {
+        data = {}
+        data['Config'] = []
+        data['Config'].append({
         'email': email,
         'password': str(auth.encKey(password).decode()),
         'external': False,
         'ID': userID,
         'args': {}
-        }
+        })
         with open('data/user/{}/config.json'.format(userID), 'w+') as of:
             json.dump(data, of)
         session['user'] = json.dumps(data)
