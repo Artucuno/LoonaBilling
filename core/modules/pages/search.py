@@ -39,7 +39,7 @@ def searchPage():
         # and rules that require parameters
         if "GET" in rule.methods and has_no_empty_params(rule):
             url = url_for(rule.endpoint, **(rule.defaults or {}))
-            print(url)
+            #print(url)
             if request.args['search'] in str(url):
                 if 'admin' not in url:
                     links.append((url, rule.endpoint))

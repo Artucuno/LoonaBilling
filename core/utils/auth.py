@@ -8,6 +8,8 @@ from flask_httpauth import HTTPBasicAuth
 from flask import *
 import json
 import sys, os
+import random
+import string
 
 hauth = HTTPBasicAuth()
 
@@ -17,7 +19,10 @@ def login_is_required(function):
             return redirect(url_for('Accounts.login'))
         else:
             if isAuth(session['user']):
-                return function()
+                if not isSuspended(json.loads(session['user'])['Config'][0]['email']):
+                    return function()
+                else:
+                    return redirect(url_for('Accounts.suspended'))
             else:
                 return redirect(url_for('Accounts.login'))
 
@@ -29,6 +34,7 @@ def isEmail(email):
             with open(f'data/user/{f}/config.json') as of:
                 data = json.load(of)
                 for p in data['Config']:
+                    #print(p['email'])
                     if p['email'] == email:
                         return True
         except Exception as e:
@@ -47,9 +53,21 @@ def getID(email):
             print(e)
     return False
 
+def isSuspended(email):
+    for f in os.listdir('data/user'):
+        try:
+            with open(f'data/user/{f}/config.json') as of:
+                data = json.load(of)
+                for p in data['Config']:
+                    if p['email'] == email:
+                        if p['suspended']['isSuspended'] == True:
+                            return p['suspended']['reason']
+                        return False
+        except Exception as e:
+            print(e)
+    return False
+
 def logAuth(form):
-    #print(form)
-    #print(form['Config'][0]['ID'])
     try:
         with open(f'data/user/{form["Config"][0]["ID"]}/config.json') as of:
             data = json.load(of)
@@ -62,6 +80,14 @@ def logAuth(form):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         print(e, exc_type, fname, exc_tb.tb_lineno)
     return False
+
+def genState():
+    a = ''
+    for f in range(random.randint(10,30)):
+        a += random.choice(string.ascii_letters)
+    if a in os.listdir('data/states'):
+        return genState
+    return a
 
 def isAuth(sess):
     #print(type(sess))
