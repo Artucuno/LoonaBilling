@@ -44,7 +44,7 @@ def getID(email):
                     if p['email'] == email:
                         return p['ID']
         except:
-            pass
+            continue
     return False
 
 def logAuth(form):

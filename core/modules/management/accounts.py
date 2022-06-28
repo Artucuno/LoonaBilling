@@ -63,7 +63,7 @@ def login():
             #print(user)
             #print('a')
             session['user'] = json.dumps(user)
-            print(session['user'])
+            #print(session['user'])
             return redirect(url_for('Accounts.dashboard'))
         else:
             return render_template('core/Accounts/login.html', msg='Incorrect email or password', businessName=config.businessName)
