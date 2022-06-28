@@ -31,8 +31,8 @@ def isEmail(email):
                 for p in data['Config']:
                     if p['email'] == email:
                         return True
-        except:
-            pass
+        except Exception as e:
+            print(e)
     return False
 
 def getID(email):
@@ -43,8 +43,8 @@ def getID(email):
                 for p in data['Config']:
                     if p['email'] == email:
                         return p['ID']
-        except:
-            continue
+        except Exception as e:
+            print(e)
     return False
 
 def logAuth(form):
