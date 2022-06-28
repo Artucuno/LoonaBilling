@@ -2,11 +2,14 @@ import time
 import logging
 lf = True
 if lf == True:
-    logging.basicConfig(filename='logs/'+str(time.time())+'.log',
-                        filemode='a',
-                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                        datefmt='%H:%M:%S',
-                        level=logging.DEBUG)
+    try:
+        logging.basicConfig(filename='logs/'+str(time.time())+'.log',
+                            filemode='a',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%H:%M:%S',
+                            level=logging.DEBUG)
+    except Exception as e:
+        print('Unable to start logging', e)
 import sys, os
 import json
 from flask import Flask
@@ -86,8 +89,9 @@ def checks():
         with open('setup', 'wb') as of:
             of.write(key)
         of.close()
-        print('=================')
-        print('''Welcome to LoonaBilling! (v{})
+        print('''
+=================
+Welcome to LoonaBilling! (v{})
 
 To get started, make sure that you have configured config.py to the correct settings.
 The config.py has some of the most important options such as where your LoonaBilling instance is pointed to, Debug and SSL Settings.

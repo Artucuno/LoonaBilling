@@ -11,11 +11,12 @@ A WIP Open-source WHMCS alternative.
 
 # Features
 - [x] Built with Flask
+- [x] Lightweight
 - [x] [Stripe](https://stripe.com) Support
 - [x] Fully Modular Design
   - [x] Custom Module Support
 - [x] Admin Panel
-- [x] Product Management (W.I.P)
+- [x] Product Management
 - [x] Storefront
 - [ ] Email Sending (W.I.P)
 - [x] Website Search (W.I.P)
@@ -25,7 +26,7 @@ A WIP Open-source WHMCS alternative.
   - [ ] Reseller Accounts
 - [x] Multiple Login Methods
   - [x] Email Login
-  - [ ] Google Login
+  - [x] Google Login
   - [ ] Discord Login
 
 # TODO
