@@ -16,8 +16,8 @@ module.moduleDescription = 'A simple accounts module'
 module.version = '1.0'
 module.config = {}
 module.config['HCAPTCHA_ENABLED'] = False
-module.config['HCAPTCHA_SITE_KEY'] = "2e026146-a559-479a-9a68-e9f6110ec6be"
-module.config['HCAPTCHA_SECRET_KEY'] = "0xDDC3ef06E5cE9E23eCbFf51625C2b1F0C84a2058"
+module.config['HCAPTCHA_SITE_KEY'] = ""
+module.config['HCAPTCHA_SECRET_KEY'] = ""
 hcaptcha = hCaptcha(module)
 
 def cf(folder):
