@@ -67,12 +67,27 @@ div.content {
 </div>
 
 <div class="content">
-  <h2>Manage {{ moduleName }}</h2>
+  <h2>Manage Accounts - {{ moduleName }}</h2>
   <p>{{ moduleDescription }}</h3>
     <hr>
     <h2>Management</h2>
-    <a href="/admin/{{ moduleName }}/manageAccounts">Manage Accounts</a>
-    <a href="/admin/{{ moduleName }}/manageSettings">Manage Settings</a>
+    <h2>Google Settings</h2>
+    <form method="POST">
+      <input type="checkbox" name='google-enabled'>
+      <label for="google-enabled">Google Login Enabled</label><br>
+      <button style="submit">Update</button>
+    </form><br><hr>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="file" name='clientFile'>
+      <label for="clientFile">Client JSON file</label>
+      <br>
+      <button style="submit">Update</button>
+    </form><br><hr>
+    <form method="POST">
+      <input name="clientID" type="text" placeholder="Client ID">
+      <br>
+      <button style="submit">Update</button>
+    </form><br><hr>
 </div>
 
 </body>
