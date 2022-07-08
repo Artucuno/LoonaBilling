@@ -251,7 +251,7 @@ def adminModules():
                     files.endisModule(f)
         except Exception as e:
             print(e)
-            return str(e)
+            return redirect(url_for('adminModules'))
     #for f in list(app.url_map.iter_rules()):
     #    print(f, f.endpoint)
     return render_template('core/adminModules.html', app=app, moduleEnabled=files.moduleEnabled)
