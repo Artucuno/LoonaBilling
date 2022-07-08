@@ -3,6 +3,7 @@ from jinja2 import TemplateNotFound
 from flask import *
 from flask_hcaptcha import hCaptcha
 from werkzeug.utils import secure_filename
+from colorama import Fore, Back, Style
 import pathlib
 import requests
 import config
@@ -78,7 +79,7 @@ def checks():
                         redirect_uri=config.domain_url+"callback/google"
                     )
                 except Exception as e:
-                    print(f'[{module.name}] Unable to load Google Flow')#, e)
+                    print(Fore.YELLOW + f'[{module.name}] ' + Style.RESET_ALL + 'Unable to load Google Flow')#, e)
     except Exception as e:
         print('Accounts checks', e)
 
@@ -98,12 +99,12 @@ def login():
             email = request.form['email']
             password = request.form['password']
         except:
-            return render_template('core/Accounts/login.html', msg="Missing an argument", businessName=config.businessName)
+            return render_template('core/Accounts/login.html', msg="Missing an argument", businessName=files.getBranding()[0])
         if module.config['HCAPTCHA_ENABLED']:
             if not hcaptcha.verify():
-                return render_template('core/Accounts/login.html', msg="Please retry the Captcha", businessName=config.businessName)
+                return render_template('core/Accounts/login.html', msg="Please retry the Captcha", businessName=files.getBranding()[0])
         #if auth.isEmail(email):
-        #    return render_template('core/Accounts/login.html', msg="Account already exists with this email", businessName=config.businessName)
+        #    return render_template('core/Accounts/login.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
         data = {}
         data['Config'] = []
         data['Config'].append({
@@ -116,11 +117,11 @@ def login():
         user = auth.logAuth(data)
         if user != False:
             session['user'] = json.dumps(user)
-            return redirect(config.domain_url+'dashboard')
+            return redirect(url_for('Accounts.dashboard'))
         else:
-            return render_template('core/Accounts/login.html', msg='Incorrect email or password', businessName=config.businessName)
+            return render_template('core/Accounts/login.html', msg='Incorrect email or password', businessName=files.getBranding()[0])
 
-    return render_template('core/Accounts/login.html', businessName=config.businessName)
+    return render_template('core/Accounts/login.html', businessName=files.getBranding()[0])
 
 @module.route('/register', methods=['GET', 'POST'])
 def register():
@@ -140,12 +141,12 @@ def register():
             email = request.form['email']
             password = request.form['password']
         except:
-            return render_template('core/Accounts/register.html', msg="Missing an argument", businessName=config.businessName)
+            return render_template('core/Accounts/register.html', msg="Missing an argument", businessName=files.getBranding()[0])
         if module.config['HCAPTCHA_ENABLED']:
             if not hcaptcha.verify():
-                return render_template('core/Accounts/register.html', msg="Please retry the Captcha", businessName=config.businessName)
+                return render_template('core/Accounts/register.html', msg="Please retry the Captcha", businessName=files.getBranding()[0])
         if auth.isEmail(email):
-            return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=config.businessName)
+            return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
         userID = auth.getUserCount()
         cf('data/user/{}'.format(userID))
         data = {}
@@ -155,6 +156,7 @@ def register():
         'password': str(auth.encKey(password).decode()),
         'external': False,
         'ID': userID,
+        'type': 'user',
         'suspended': {'isSuspended': False, 'reason': 'No reason'},
         'args': {}
         })
@@ -162,12 +164,12 @@ def register():
             json.dump(data, of)
         session['user'] = json.dumps(data)
 
-        return redirect(config.domain_url+'dashboard')
-    return render_template('core/Accounts/register.html', businessName=config.businessName)
+        return redirect(url_for('Accounts.dashboard'))
+    return render_template('core/Accounts/register.html', businessName=files.getBranding()[0])
 
 @module.route('/suspended')
 def suspended():
-    return 'Account suspended.'
+    return render_template('error.html', msg='Your account has been suspended.')
 
 @module.route('/logout', methods=['GET', 'POST'])
 def logout():
@@ -210,7 +212,7 @@ def callback_google():
 
             if st == 'register':
                 if auth.isEmail(id_info['email']):
-                    return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=config.businessName)
+                    return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
                 userID = auth.getUserCount()
                 cf('data/user/{}'.format(userID))
                 data = {}
@@ -221,16 +223,17 @@ def callback_google():
                 'external': True,
                 'ID': userID,
                 'suspended': {'isSuspended': False, 'reason': 'No reason'},
+                'type': 'user',
                 'args': {'type': 'google'}
                 })
                 with open('data/user/{}/config.json'.format(userID), 'w+') as of:
                     json.dump(data, of)
                 session['user'] = json.dumps(data)
-                return redirect(config.domain_url+'dashboard')
+                return redirect(url_for('Accounts.dashboard'))
             if st == 'login':
                 #print('login')
                 if auth.isEmail(id_info['email']):
-                    #return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=config.businessName)
+                    #return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
                     data = {}
                     data['Config'] = []
                     data['Config'].append({
@@ -243,7 +246,7 @@ def callback_google():
                     #print(user)
                     if user != False:
                         session['user'] = json.dumps(user)
-                        return redirect(config.domain_url+'dashboard')
+                        return redirect(url_for('Accounts.dashboard'))
                     else:
                         return redirect(url_for('Accounts.login'))
                 else:
@@ -261,7 +264,7 @@ def dashboard():
         if user != False:
             for p in user['Config']:
                 #print('a')
-                return render_template('core/Accounts/dashboard.html', businessName=config.businessName, email=p['email'])
+                return render_template('core/Accounts/dashboard.html', businessName=files.getBranding()[0], email=p['email'])
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -271,7 +274,7 @@ def dashboard():
 @module.route('/admin/{}'.format(module.name))
 @hauth.login_required
 def adminPage():
-    return render_template('core/Accounts/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/Accounts/admin.html', businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/manageGoogle'.format(module.name), methods=['GET', 'POST'])
 @hauth.login_required
@@ -291,7 +294,7 @@ def adminManageGoogle():
         if 'clientID' in request.form:
             files.updateJSON('configs/accounts/google.json', 'client_id', request.form['clientID'])
             module.GOOGLE_CLIENT_ID = request.form['clientID']
-    return render_template('core/Accounts/adminManageGoogle.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/Accounts/adminManageGoogle.html', businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 
 checks()

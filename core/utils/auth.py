@@ -10,6 +10,7 @@ import json
 import sys, os
 import random
 import string
+from functools import update_wrapper
 
 hauth = HTTPBasicAuth()
 
@@ -26,7 +27,7 @@ def login_is_required(function):
             else:
                 return redirect(url_for('Accounts.login'))
 
-    return wrapper
+    return update_wrapper(wrapper, function)
 
 def isEmail(email):
     for f in os.listdir('data/user'):

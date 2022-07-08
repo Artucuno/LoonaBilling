@@ -9,7 +9,7 @@ import imp
 import json
 from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
-
+from core.utils import files as fls
 # TODO:
 # Add automation API selection
 
@@ -56,7 +56,7 @@ checks()
 @module.route('/admin/{}'.format(module.name))
 @hauth.login_required
 def adminPage():
-    return render_template('core/LoonaProducts/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/LoonaProducts/admin.html', businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/createCategory'.format(module.name), methods=['GET', 'POST'])
 @hauth.login_required
@@ -66,9 +66,9 @@ def createCategory():
             os.mkdir(os.path.join('products', secure_filename(request.form['category'].strip())))
         except Exception as e:
             print(e)
-            return render_template('core/LoonaProducts/adminCreateCategory.html', msg='Category already exists', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
-        return render_template('core/LoonaProducts/adminCreateCategory.html', msg='Category created', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
-    return render_template('core/LoonaProducts/adminCreateCategory.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+            return render_template('core/LoonaProducts/adminCreateCategory.html', msg='Category already exists', businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
+        return render_template('core/LoonaProducts/adminCreateCategory.html', msg='Category created', businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/LoonaProducts/adminCreateCategory.html', businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/deleteCategory'.format(module.name), methods=['GET', 'POST'])
 @hauth.login_required
@@ -79,9 +79,9 @@ def deleteCategory():
                 os.remove(os.path.join('products', secure_filename(request.form['category'].strip())))
         except Exception as e:
             print(e)
-            return render_template('core/LoonaProducts/adminCreateCategory.html', msg="Category doesn't exists or access is denied", businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
-        return render_template('core/LoonaProducts/adminCreateCategory.html', msg='Category deleted', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
-    return render_template('core/LoonaProducts/adminDeleteCategory.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+            return render_template('core/LoonaProducts/adminCreateCategory.html', msg="Category doesn't exists or access is denied", businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
+        return render_template('core/LoonaProducts/adminCreateCategory.html', msg='Category deleted', businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/LoonaProducts/adminDeleteCategory.html', businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 
 @module.route('/admin/{}/createProduct'.format(module.name), methods=['GET', 'POST'])
@@ -96,9 +96,9 @@ def createProduct():
         if 'description' in request.form:
             description = request.form['description']
         if 'title' not in request.form:
-            return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), msg='Title is missing', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+            return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), msg='Title is missing', businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
         elif 'price' not in request.form:
-            return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), msg='Price is missing', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+            return render_template('core/LoonaProducts/adminCreateProduct.html', categories=os.listdir('products'), msg='Price is missing', businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
         else:
             itemID = len(os.listdir('products/{}'.format(secure_filename(request.form['category']))))
             if 'prodImage' in request.files:
@@ -115,8 +115,11 @@ def createProduct():
                     price = price.replace(price.split('.')[1], str(round(float(price.split('.')[1]), 2)))
             for f in mods:
                 if getattr(mods[f], 'module').name == str(request.form['paypro']):
-                    rgs = getattr(mods[f], 'createProduct')(request.form, image, description, price)
-                    print(rgs)
+                    try:
+                        rgs = getattr(mods[f], 'createProduct')(request.form, image, description, price)
+                        print(rgs)
+                    except:
+                        print('Unable to add to Payment Provider')
             data = {}
             data['Config'] = []
             data['Config'].append({
@@ -132,5 +135,5 @@ def createProduct():
             })
             with open('products/{}/{}.json'.format(secure_filename(request.form['category']), itemID), 'w+') as of:
                 json.dump(data, of)
-            return render_template('core/LoonaProducts/adminCreateProduct.html', payments=paypro, categories=os.listdir('products'), msg=f'Created Product: {request.form["title"]}', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
-    return render_template('core/LoonaProducts/adminCreateProduct.html', payments=paypro, categories=os.listdir('products'), businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+            return render_template('core/LoonaProducts/adminCreateProduct.html', payments=paypro, categories=os.listdir('products'), msg=f'Created Product: {request.form["title"]}', businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/LoonaProducts/adminCreateProduct.html', payments=paypro, categories=os.listdir('products'), businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)

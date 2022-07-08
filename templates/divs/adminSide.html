@@ -1,0 +1,25 @@
+<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+<link rel="stylesheet" href="/static/fontawesome/css/brands.css">
+<div class="sidebar">
+  <a class="active" href="/admin">Home</a>
+  <hr>
+  <h3>Manage</h3>
+  <a href="/admin/branding"><i class="fa-solid fa-image"></i> Branding</a>
+  <a href="/admin/themes"><i class="fa-solid fa-brush"></i> Themes (Todo)</a>
+  <a href="/admin/modules"><i class="fa-solid fa-cog"></i> Modules</a>
+  <a href="/admin/filemanager"><i class="fa-solid fa-file"></i> File Manager</a>
+  <hr>
+  <h3>Modules</h3>
+  {% for f in app.adminModules %}
+  <a href="/admin/{{ f[0] }}">{{ f[0] }} - v{{ f[2] }}</a>
+  {% endfor %}
+  <hr>
+  <a href="/admin/update"><i class="fa-solid fa-sync"></i> Update
+  {% if app.hasUpdate %}
+  <i style="color: red" title='New Update' class="fa-solid fa-sync"></i>
+  {% else %}
+  <i style="color: lightgreen" title='Up to date' class="fa-solid fa-check"></i>
+  {% endif %}
+  (v{{ app.version }})
+  </a>
+</div>

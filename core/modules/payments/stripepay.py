@@ -6,6 +6,7 @@ import config
 import os
 from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
+from core.utils import files
 
 stripe.api_version = '2020-08-27'
 
@@ -74,9 +75,9 @@ def Stripe_startSession():
         ritem = secure_filename(request.args['item'])
         rcate = secure_filename(request.args['category'])
         if 'category' not in request.args:
-            return render_template('error.html', msg='No category was specified.', businessName=config.businessName)
+            return render_template('error.html', msg='No category was specified.', businessName=files.getBranding()[0])
         if 'item' not in request.args:
-            return render_template('error.html', msg='No item ID was specified.', businessName=config.businessName)
+            return render_template('error.html', msg='No item ID was specified.', businessName=files.getBranding()[0])
         if os.path.isdir('products/{}'.format(rcate)):#, request.args['item'])):
             with open('products/{}/{}.json'.format(rcate, ritem)) as of:
                 data = json.load(of)
@@ -103,11 +104,12 @@ def Stripe_startSession():
 def success():
     a = stripe.checkout.Session.retrieve(request.args['session_id'])
     # Send email after purchase. Check checkout session a['email']
-    return render_template('core/Stripe/paymentSucess.html', businessName=config.businessName)
+    sendMail(None, None)
+    return render_template('core/Stripe/paymentSucess.html', businessName=files.getBranding()[0])
 
 @module.route("/cancelled")
 def cancelled():
-    return render_template('core/Stripe/paymentCancelled.html', businessName=config.businessName)
+    return render_template('core/Stripe/paymentCancelled.html', businessName=files.getBranding()[0])
 import sys
 @module.route('/admin/{}/listPurcahses'.format(module.name), methods=['GET', 'POST'])
 @hauth.login_required
@@ -151,7 +153,7 @@ def adminListPurchases():
     #print(stripe.Balance.retrieve())
     try:
         #print(stripe.Charge.list())
-        return render_template('core/Stripe/adminListPurchases.html', customers=customers, customer=stripe.Customer.retrieve, purchases=purchases, refunds=refunds, bal=bal, businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+        return render_template('core/Stripe/adminListPurchases.html', customers=customers, customer=stripe.Customer.retrieve, purchases=purchases, refunds=refunds, bal=bal, businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
     except Exception as e:
         print(e)
         return 'Unable to get. Have you added an API Key?'
@@ -164,12 +166,12 @@ def adminPage():
     except:
         bal = '0.0'
     #print(stripe.Balance.retrieve())
-    return render_template('core/Stripe/admin.html', bal=bal, businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/Stripe/admin.html', bal=bal, businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/emailSettings'.format(module.name))
 @hauth.login_required
 def adminEmailSettings():
-    return render_template('core/Stripe/adminEmailSettings.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/Stripe/adminEmailSettings.html', businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 
 @module.route('/admin/{}/manageKeys'.format(module.name), methods=['GET', 'POST'])
@@ -180,4 +182,4 @@ def adminManageKeys():
     if 'privateKey' in request.form:
         open('configs/stripe/privateKey.txt', 'w+').write(request.form['privateKey'].strip())
         stripe.api_key = request.form['privateKey'].strip()
-    return render_template('core/Stripe/adminManageKeys.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/Stripe/adminManageKeys.html', businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)

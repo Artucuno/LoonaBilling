@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+<style>
+body {
+  margin: 0;
+  font-family: "Lato", sans-serif;
+}
+
+.sidebar {
+  margin: 0;
+  padding: 0;
+  width: 200px;
+  background-color: #f1f1f1;
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+}
+
+.sidebar a {
+  display: block;
+  color: black;
+  padding: 16px;
+  text-decoration: none;
+}
+
+.sidebar a.active {
+  background-color: #04AA6D;
+  color: white;
+}
+
+.sidebar a:hover:not(.active) {
+  background-color: #555;
+  color: white;
+}
+
+div.content {
+  margin-left: 200px;
+  padding: 1px 16px;
+  height: 1000px;
+}
+
+@media screen and (max-width: 700px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  .sidebar a {float: left;}
+  div.content {margin-left: 0;}
+}
+
+@media screen and (max-width: 400px) {
+  .sidebar a {
+    text-align: center;
+    float: none;
+  }
+}
+@keyframes growProgressBar {
+  0%, 33% { --pgPercentage: 0; }
+  100% { --pgPercentage: var(--value); }
+}
+
+div[role="progressbar"] {
+  --size: 12rem;
+  --fg: #369;
+  --bg: #def;
+  --pgPercentage: var(--value);
+  animation: growProgressBar 3s 1 forwards;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(closest-side, white 80%, transparent 0 99.9%, white 0),
+    conic-gradient(var(--fg) calc(var(--pgPercentage) * 1%), var(--bg) 0)
+    ;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: calc(var(--size) / 5);
+  color: var(--fg);
+}
+
+div[role="progressbar"]::before {
+  counter-reset: percentage var(--value);
+  content: counter(percentage) '%';
+}
+</style>
+</head>
+<body>
+
+{% include 'divs/adminSide.html' %}
+
+<div class="content">
+  <h2>Update LoonaBilling</h2>
+  <p>Check for the latest LoonaBilling updates</p>
+  <hr>
+  {% if app.hasUpdate %}
+  <h1><i style="color: red" class="fa-solid fa-rotate"></i> Update Available</h1>
+  <form method="POST">
+    <button name="update">Pull latest update <i class="fa-brands fa-github"></i></button>
+    <p>It is <strong>NOT RECOMMENDED</strong> to use the update button</p>
+  </form>
+  {% else %}
+  <h1><i style="color: lightgreen" class="fa-solid fa-check"></i> You're up to date!</h1>
+  <form method="POST">
+    <button name="checkUpdate">Check for update <i class="fa-solid fa-sync"></i></button>
+  </form>
+  {% endif %}
+  <br>
+  <textarea rows="8" cols="80" disabled>{{ changelog }}</textarea>
+</div>
+{% include 'divs/adminFooter.html' %}
+</body>
+</html>
