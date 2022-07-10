@@ -1,3 +1,7 @@
+![LoonaBilling](https://user-images.githubusercontent.com/28388670/172512382-81059cf6-c872-4a4c-a370-223f2d4d009c.png)
+
+<img src="https://img.shields.io/discord/887501133902385202?logo=discord&style=social"> <img src="https://img.shields.io/github/last-commit/Loona-cc/LoonaBilling?logo=github&style=social"> <img src="https://img.shields.io/github/workflow/status/Loona-cc/LoonaBilling/CodeQL?logo=github-sponsors&style=social">
+
 # Development Changelog
 Sorry for the late update, I tried to make this update a little bigger.
 
@@ -8,13 +12,13 @@ Sorry for the late update, I tried to make this update a little bigger.
 ## Admin Dashboard
 + Added Admin Modules Tab
   + Enable/Disable Modules
-  + Install Modules (Todo)
+  + Install Modules
 
 + Added Update Tab
   + Check for updates
   + Pull new updates (WIP)
 
-+ Added File Manager Tab (Todo)
++ Added File Manager Tab
   + Edit template files from the web browser
 
 + New Admin Sidebar
@@ -22,7 +26,7 @@ Sorry for the late update, I tried to make this update a little bigger.
   + Modules Tab
   + Update Tab
   + File manager tab
-  + Theme Manager (Todo)
+  + Theme Manager
 
 ## Customer Dashboard
 + Added new links

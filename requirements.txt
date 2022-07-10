@@ -13,6 +13,7 @@ Jinja2==3.0.1
 pip==22.1.2
 protobuf==4.21.2
 psutil==5.8.0
+PyDriller==2.1
 requests==2.25.1
 stripe==3.4.0
 Werkzeug==2.0.0

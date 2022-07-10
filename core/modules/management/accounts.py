@@ -20,6 +20,9 @@ import google.auth.transport.requests
 
 from flask_discord import DiscordOAuth2Session, requires_authorization, Unauthorized
 
+# Todo:
+# Implement Discord Login - https://gist.github.com/barzamin/590660de3ed13eaab9267f29d2a4c43f
+
 module = Blueprint('Accounts', __name__)
 module.hasAdminPage = True
 module.moduleDescription = 'A simple accounts module'

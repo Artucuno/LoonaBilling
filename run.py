@@ -35,9 +35,13 @@ import requests
 import getpass
 import git
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
 from core.utils import files
 from core.utils import network
+from git import Repo
+import urllib.parse
+from pydriller import Repository
 
 print(os.getpid()) # Checking resource usage for pid
 tprint("LoonaBilling")
@@ -196,15 +200,18 @@ def load_blueprints():
 
     return mods
 
-app.mods = load_blueprints()
-for f in app.mods:
-    try:
-        app.loadedModules += [app.mods[f].module.name]
-        if app.mods[f].module.hasAdminPage == True:
-            app.adminModules += [(app.mods[f].module.name, app.mods[f].module.moduleDescription, app.mods[f].module.version, app.mods[f].module.hasAdminPage)]
-    except Exception as e:
-        print(f, e)
-print(Fore.GREEN + '[LoonaBilling] ' + Style.RESET_ALL + 'Loaded', len(app.loadedModules), 'modules')
+def loadModules():
+    app.mods = load_blueprints()
+    for f in app.mods:
+        try:
+            app.loadedModules += [app.mods[f].module.name]
+            if app.mods[f].module.hasAdminPage == True:
+                app.adminModules += [(app.mods[f].module.name, app.mods[f].module.moduleDescription, app.mods[f].module.version, app.mods[f].module.hasAdminPage)]
+        except Exception as e:
+            print(f, e)
+    print(Fore.GREEN + '[LoonaBilling] ' + Style.RESET_ALL + 'Loaded', len(app.loadedModules), 'modules')
+
+loadModules()
 
 @app.route('/admin')
 @hauth.login_required
@@ -244,6 +251,17 @@ def adminUpdate():
 @hauth.login_required
 def adminModules():
     if request.method == 'POST':
+        if 'repoAuthor' and 'repoName' in request.form:
+            try:
+                x = requests.get('https://raw.githubusercontent.com/{}/{}/main/manifest.json'.format(request.form['repoAuthor'], request.form['repoName']), timeout=3)
+                data = json.loads(x.text)
+                print(data)
+                Repo.clone_from('https://github.com/{}/{}.git'.format(request.form['repoAuthor'], request.form['repoName']), 'modules/{}'.format(request.form['repoName']))
+                return 'Module Installed, please restart LoonaBilling.'
+            except Exception as e:
+                print(e)
+                return 'Error when downloading module, check console.'
+            #Repo.clone_from(request.form['gitRepo'], repo_dir)
         try:
             for f in request.form:
                 #print(f, app.loadedModules)
@@ -251,6 +269,7 @@ def adminModules():
                     files.endisModule(f)
         except Exception as e:
             print(e)
+
             return redirect(url_for('adminModules'))
     #for f in list(app.url_map.iter_rules()):
     #    print(f, f.endpoint)
@@ -259,10 +278,47 @@ def adminModules():
 @app.route('/admin/filemanager')
 @hauth.login_required
 def adminFilemanager():
+    if not config.filemanagerEnabled:
+        return 'Filemanager is not enabled'
     #for f in list(app.url_map.iter_rules()):
     #    print(f, f.endpoint)
-    return render_template('core/adminFilemanager.html', app=app)
+    dirs = []
+    files = []
+    dir = ''
+    if 'dir' in request.args:
+        dir = request.args['dir']
+    for f in os.listdir(os.path.join('templates', dir)):
+        if os.path.isdir(os.path.join('templates', dir, f)):
+            dirs += [(os.path.join(dir, f), f)]
+        if os.path.isfile(os.path.join('templates', dir, f)):
+            if os.path.join('templates', dir, f).endswith('.html'):
+                files += [(os.path.join(dir, f), f)]
 
+    return render_template('core/adminFilemanager.html', app=app, dirs=dirs, files=files)
+
+@app.route('/admin/themes', methods=["GET", "POST"])
+@hauth.login_required
+def adminThemes():
+    return render_template('core/adminThemes.html', app=app)
+
+@app.route('/admin/filemanager/edit', methods=["GET", "POST"])
+@hauth.login_required
+def adminFilemanagerEdit():
+    if not config.filemanagerEnabled:
+        return 'Filemanager is not enabled'
+    if 'file' not in request.args:
+        return redirect(url_for('adminFilemanager'))
+    if 'admin' in request.args['file']:
+        return 'Due to security reasons, admin templates can not be edited.'
+    if request.method == 'POST':
+        #print(repr(request.form['content']))
+        with open(os.path.join('templates', request.args['file']), 'w+') as of:
+            of.write(request.form['content'].replace('\r', ''))
+    if os.path.isfile(os.path.join('templates', request.args['file'])):
+        with open(os.path.join('templates', request.args['file']), 'r') as of:
+            return render_template('core/adminEditFile.html', app=app, filename=request.args['file'], filelocation=request.args['file'], content=of.read())
+    else:
+        return render_template('error.html', businessName=files.getBranding()[0], msg='File does not exist!')
 
 @app.errorhandler(404)
 def page_not_found(e):
