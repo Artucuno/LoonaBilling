@@ -5,7 +5,17 @@
       <i class="fa fa-caret-down"></i>
     </button>
     <div class="dropdown-content">
+      <a href="/dashboard/payments">Payments</a>
       <a href="/store">Order new services</a>
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="dropbtn">Help / Support
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content">
+      <a href="/dashboard/support">Support Page</a>
+      <a href="/dashboard/support/tickets">Tickets</a>
     </div>
   </div>
   <div class="search-container">
@@ -15,8 +25,15 @@
     </form>
   </div>
   {% if session['user'] %}
-  <a href='/logout' style="float:right"><i class="fa-solid fa-right-from-bracket"></i></a>
-  <a href='/dashboard' style="float:right"><i class="fa-solid fa-user"></i></a>
+  <div style="float: right;" class="dropdown">
+    <button class="dropbtn">
+      <i class="fa-solid fa-user"></i>
+    </button>
+    <div class="dropdown-content">
+      <a href="/dashboard"><i class="fa-solid fa-dashboard"></i> Dashboard</a>
+      <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </div>
   {% else %}
   <a href='/login' style="float:right"><i class="fa-solid fa-user-lock"></i></a>
   {% endif %}

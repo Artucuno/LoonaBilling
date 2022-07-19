@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+<link rel="stylesheet" href="/static/fontawesome/css/brands.css">
+<style>
+body {
+  margin: 0;
+  font-family: "Lato", sans-serif;
+}
+
+.sidebar {
+  margin: 0;
+  padding: 0;
+  width: 200px;
+  background-color: #f1f1f1;
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+}
+
+.sidebar a {
+  display: block;
+  color: black;
+  padding: 16px;
+  text-decoration: none;
+}
+
+.sidebar a.active {
+  background-color: #04AA6D;
+  color: white;
+}
+
+.sidebar a:hover:not(.active) {
+  background-color: #555;
+  color: white;
+}
+
+div.content {
+  margin-left: 200px;
+  padding: 1px 16px;
+  height: 1000px;
+}
+
+@media screen and (max-width: 700px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  .sidebar a {float: left;}
+  div.content {margin-left: 0;}
+}
+
+@media screen and (max-width: 400px) {
+  .sidebar a {
+    text-align: center;
+    float: none;
+  }
+}
+.collapsible {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible:hover {
+  background-color: #555;
+}
+
+.collapsible:after {
+  content: '\002B';
+  color: white;
+  font-weight: bold;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2212";
+}
+
+.contente {
+  padding: 0 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  background-color: #f1f1f1;
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <a href="/admin">Back</a>
+  <a class="active">Current</a>
+</div>
+
+<div class="content">
+  <h2>Manage Accounts</h2>
+  <p>Manage all users that have signed up</h3>
+    <hr>
+    <h2>Accounts</h2>
+    {% for f in accounts %}
+    {% for p in f['Config'] %}
+    <button class="collapsible">
+    {% if p['suspended']['isSuspended'] %}
+    <i style='color: red' class="fa-solid fa-user-lock"></i>
+    {% else %}
+    <i style="color: lightgreen" class="fa-solid fa-user-check"></i>
+    {% endif %}
+    {{ p['email'] }}</button>
+    <div class="contente">
+      <p>{{ p['email'] }} - Suspended: {{ p['suspended']['isSuspended'] }}</p>
+      <textarea rows="8" cols="80" disabled>{{ f }}</textarea>
+    </div>
+    {% endfor %}
+    {% endfor %}
+    <!--<a href="/admin/{{ moduleName }}/manageSettings">Manage Settings</a>-->
+</div>
+
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.maxHeight){
+      content.style.maxHeight = null;
+    } else {
+      content.style.maxHeight = content.scrollHeight + "px";
+    }
+  });
+}
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-![geeaafbb](https://user-images.githubusercontent.com/28388670/172512382-81059cf6-c872-4a4c-a370-223f2d4d009c.png)
+![LoonaBilling](https://user-images.githubusercontent.com/28388670/172512382-81059cf6-c872-4a4c-a370-223f2d4d009c.png)
 
 # LoonaBilling
 <img src="https://img.shields.io/discord/887501133902385202?logo=discord&style=social"> <img src="https://img.shields.io/github/last-commit/Loona-cc/LoonaBilling?logo=github&style=social"> <img src="https://img.shields.io/github/workflow/status/Loona-cc/LoonaBilling/CodeQL?logo=github-sponsors&style=social">
@@ -7,7 +7,7 @@
 
 A WIP Open-source WHMCS alternative.
 
-(Not yet recommended for use in a production environment)
+**(Not yet recommended for use in a production environment)**
 
 # Features
 - [x] Built with Flask
@@ -17,8 +17,12 @@ A WIP Open-source WHMCS alternative.
   - [x] Custom Module Support
 - [x] Admin Panel
 - [x] Product Management
+  - [x] Stripe Products Integration
 - [x] Storefront
 - [ ] Email Sending (W.I.P)
+  - [ ] Purchase Messages
+  - [ ] Contact Messages
+  - [ ] Account Registration Messages
 - [x] Website Search (W.I.P)
 - [x] User Management (W.I.P)
   - [x] Basic Accounts
@@ -36,4 +40,6 @@ A WIP Open-source WHMCS alternative.
   - [ ] ID Management
   - [ ] Domain Redirection
 - [ ] Management API
-- [ ] PayPal Support (?)
+  - [ ] Account Management
+  - [ ] Product Management
+- [ ] [PayPal](https://paypal.com) Support (?)

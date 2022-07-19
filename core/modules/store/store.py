@@ -5,11 +5,12 @@ from jinja2 import TemplateNotFound
 import config
 import os
 from werkzeug.utils import secure_filename
+from core.utils import files
 
 module = Blueprint('LoonaStore', __name__)
 module.hasAdminPage = False
 module.moduleDescription = 'The Core Store Module for LoonaBilling'
-module.version = '1.2'
+module.version = '1.3'
 
 def cf(folder):
     try:
@@ -20,21 +21,6 @@ def cf(folder):
         return
 
 def checks():
-#    try:
-#        import configs.store.config as storeConfig
-#    except:
-#        cf('configs/store')
-#        cf('configs/store/data')
-#        a = open('configs/store/config.py', 'w+').write('''# Core Module Config
-#
-#
-#''')
-#        try:
-#            import configs.store.config as storeConfig
-#            print("Store config was created. Please update the config located at configs/store/config.py")
-#        except:
-#            print('ERROR: STORE CONFIG NOT FOUND')
-
     cf('products')
 
 checks()
@@ -49,10 +35,15 @@ def store():
         item = request.args['item']
     categories = []
     items = []
-    for f in os.listdir('products/{}'.format(category)):
-        if os.path.isdir(os.path.join('products/', category, f)):
-            #print('folder')
+    #if category == '':
+    #    category = 'default'
+    for f in os.listdir('products'):
+        if os.path.isdir(f'products/{f}'):
             categories += [f]
+    for f in os.listdir(f'products/{category}'):
+        #if os.path.isdir(os.path.join('products/', category, f)):
+            #print('folder')
+        #    categories += [f]
         if os.path.isfile(os.path.join('products/', category, f)):
             with open(os.path.join('products/', category, f)) as of:
                 data = json.load(of)
@@ -62,4 +53,4 @@ def store():
                     #print(prc)
                     items += [(p['title'], ''.join(prc), p['description'], f.split('.')[0], p['provider'], p['image'])]
 
-    return render_template('core/LoonaStore/index.html', businessName=config.businessName, categories=categories, items=items, category=category)
+    return render_template('core/LoonaStore/index.html', businessName=files.getBranding()[0], categories=categories, items=items, category=category)

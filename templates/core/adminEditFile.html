@@ -94,25 +94,13 @@ div[role="progressbar"]::before {
 {% include 'divs/adminSide.html' %}
 
 <div class="content">
-  <h2>LoonaBilling</h2>
-  <p>This is the Admin Panel for LoonaBilling, you can update the settings of LoonaBilling and its modules.</p>
+  <h2>Editing File: {{ filename }}</h2>
+  <p>{{ filelocation or "Unknown"}}</p>
   <hr>
-  <div style="float:left">
-    <h2>CPU Usage</h2>
-    <div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="--value:{{ cpuUsage }}"></div>
-  </div>
-  <div style="float:left">
-    <h2>RAM Usage</h2>
-    <div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="--value:{{ ramUsage }}"></div>
-  </div>
-  <div style="float:left">
-    <h2>Storage Usage</h2>
-    <div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="--value:{{ storageUsage }}"></div>
-  </div>
-  <div style="float: right">
-    <textarea rows="8" cols="80">{{ app.url_map }}</textarea>
-  </div>
-  <h3>LoonaBilling is currently under development! if you have any ideas or issues, please put them on <a href='https://github.com/Loona-cc/issues'>Github</a>.</h3>
+  <form method="POST">
+    <textarea name="content" rows="8" cols="80">{{ content }}</textarea>
+    <button type="submit">Update</button>
+  </form>
 </div>
 {% include 'divs/adminFooter.html' %}
 </body>

@@ -7,6 +7,8 @@ Flask_hCaptcha==0.5.4
 Flask_HTTPAuth==4.7.0
 GitPython==3.1.27
 google_auth_oauthlib==0.4.4
+hurry==1.1
+hurry.filesize==0.9
 Jinja2==3.0.1
 pip==22.1.2
 protobuf==4.21.2

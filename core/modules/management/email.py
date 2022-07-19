@@ -5,6 +5,7 @@ import config
 import os
 from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
+from core.utils import files
 
 module = Blueprint('Mail', __name__)
 module.hasAdminPage = True
@@ -28,9 +29,9 @@ checks()
 @module.route('/admin/{}'.format(module.name))
 @hauth.login_required
 def adminPage():
-    return render_template('core/Mail/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/Mail/admin.html', businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 @module.route('/admin/{}/editSettings'.format(module.name))
 @hauth.login_required
 def editSettings():
-    return render_template('core/Mail/adminEditSettings.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/Mail/adminEditSettings.html', businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)

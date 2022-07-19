@@ -5,6 +5,7 @@ import os
 from flask import *
 from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
+from core.utils import files
 import config
 
 module = Blueprint('Search', __name__)
@@ -43,14 +44,14 @@ def searchPage():
             if request.args['search'] in str(url):
                 if 'admin' not in url:
                     links.append((url, rule.endpoint))
-    return render_template('core/Search/search.html', searches=links, search=request.args['search'], businessName=config.businessName)
+    return render_template('core/Search/search.html', searches=links, search=request.args['search'], businessName=files.getBranding()[0])
 
 #@module.route('/admin/{}'.format(module.name))
 #@auth.login_required
 #def adminPage():
-#    return render_template('core/Mail/admin.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+#    return render_template('core/Mail/admin.html', businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 #@module.route('/admin/{}/editSettings'.format(module.name))
 #@auth.login_required
 #def editSettings():
-#    return render_template('core/Mail/adminEditSettings.html', businessName=config.businessName, moduleName=module.name, moduleDescription=module.moduleDescription)
+#    return render_template('core/Mail/adminEditSettings.html', businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)

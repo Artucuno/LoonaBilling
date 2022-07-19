@@ -1,9 +1,8 @@
 # Config file
-domain_url = "http://localhost/"
 domain = 'localhost'
-businessName = 'Loona'
-aboutText = 'A WIP Open-source WHMCS alternative.'
-ip = '127.0.0.1'
+domain_url = f"http://{domain}/"
+ip = '0.0.0.0'
 debug = False
 port = 80
-ssl = None # Replace with ('cert.pem', 'key.pem') for SSL
+ssl = None # Replace with ssl = ('cert.pem', 'key.pem') for SSL
+filemanagerEnabled = True

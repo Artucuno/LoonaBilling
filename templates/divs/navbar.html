@@ -1,4 +1,5 @@
 <div class="topnav">
+  <a><img src='/static/logo.png' style="max-height: 32px; max-width: 64px;"></img></a> <!-- Update -->
   <a class="active" href="/">{{ businessName }}</a>
   <a href="/">Home</a>
   <a href="/store">Store</a>
@@ -11,8 +12,15 @@
     </form>
   </div>
   {% if session['user'] %}
-  <a href='/logout' style="float:right"><i class="fa-solid fa-right-from-bracket"></i></a>
-  <a href='/dashboard' style="float:right"><i class="fa-solid fa-user"></i></a>
+  <div style="float: right;" class="dropdown">
+    <button class="dropbtn">
+      <i class="fa-solid fa-user"></i>
+    </button>
+    <div class="dropdown-content">
+      <a href="/dashboard"><i class="fa-solid fa-dashboard"></i> Dashboard</a>
+      <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </div>
   {% else %}
   <a href='/login' style="float:right"><i class="fa-solid fa-user-lock"></i></a>
   {% endif %}
