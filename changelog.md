@@ -41,8 +41,7 @@ Sorry for the late update, I tried to make this update a little bigger.
 
 ## Accounts
 + Fixed dashboard being Accounts.wrapper
-+ Added Manage Accounts Tab (Todo)
-  + ...
++ Added Manage Accounts Tab
 + Suspended accounts now redirect to `error.html` with message
 
 # Auth Util

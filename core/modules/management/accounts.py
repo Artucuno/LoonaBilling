@@ -279,6 +279,20 @@ def dashboard():
 def adminPage():
     return render_template('core/Accounts/admin.html', businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
+@module.route('/admin/{}/manageAccounts'.format(module.name))
+@hauth.login_required
+def adminManageAccounts():
+    accs = []
+    for f in os.listdir('data/user'):
+        try:
+            with open(f'data/user/{f}/config.json') as of:
+                data = json.load(of)
+                accs += [data]
+        except Exception as e:
+            print(e)
+    return render_template('core/Accounts/adminAccounts.html', accounts=accs, businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
+
+
 @module.route('/admin/{}/manageGoogle'.format(module.name), methods=['GET', 'POST'])
 @hauth.login_required
 def adminManageGoogle():

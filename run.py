@@ -41,7 +41,6 @@ from core.utils import files
 from core.utils import network
 from git import Repo
 import urllib.parse
-from pydriller import Repository
 
 print(os.getpid()) # Checking resource usage for pid
 tprint("LoonaBilling")
