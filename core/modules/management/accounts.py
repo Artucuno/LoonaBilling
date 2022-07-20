@@ -44,8 +44,6 @@ hcaptcha = hCaptcha(module)
 # Discord Login
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 module.config['API_BASE_URL'] = 'https://discordapp.com/api'
-module.config['OAUTH2_CLIENT_ID'] = ''
-module.config['OAUTH2_CLIENT_SECRET'] = ''
 module.config['BASE_AUTH_URL'] = module.config['API_BASE_URL'] + '/oauth2/authorize'
 module.config['TOKEN_URL'] = module.config['API_BASE_URL'] + '/oauth2/token'
 module.config['REQUESTED_SCOPES'] = ['identify', 'email']
@@ -104,12 +102,27 @@ def checks():
         data = {}
         data['Config'] = []
         data['Config'].append({
-        'enabled': True,
+        'enabled': False,
         'client_id': '',
         'file': 'configs/accounts/client_secret.json'
         })
         with open('configs/accounts/google.json', 'w+') as of:
             json.dump(data, of)
+    if not os.path.isfile('configs/accounts/discord.json'):
+        data = {}
+        data['Config'] = []
+        data['Config'].append({
+        'enabled': False,
+        'client_id': '',
+        'client_secret': ''
+        })
+        with open('configs/accounts/discord.json', 'w+') as of:
+            json.dump(data, of)
+    try:
+        module.config['OAUTH2_CLIENT_ID'] = files.readJSONVar('configs/accounts/discord.json', 'client_id')
+        module.config['OAUTH2_CLIENT_SECRET'] = files.readJSONVar('configs/accounts/discord.json', 'client_secret')
+    except Exception as e:
+        print('[Accounts] Unable to load Discord Settings')
     try:
         with open('configs/accounts/google.json') as of:
             dt = json.load(of)
@@ -157,8 +170,6 @@ def login():
                 of.write('login')
             #print(state)
             return redirect(auth_url)
-        #if 'login-discord' in request.form:
-        #    return discord.create_session()
         try:
             email = request.form['email']
             password = request.form['password']
@@ -185,7 +196,7 @@ def login():
         else:
             return render_template('core/Accounts/login.html', msg='Incorrect email or password', businessName=files.getBranding()[0])
 
-    return render_template('core/Accounts/login.html', businessName=files.getBranding()[0])
+    return render_template('core/Accounts/login.html', googleLogin=files.readJSONVar('configs/accounts/google.json', 'enabled'), discordLogin=files.readJSONVar('configs/accounts/discord.json', 'enabled'), businessName=files.getBranding()[0])
 
 @module.route('/register', methods=['GET', 'POST'])
 def register():
@@ -206,11 +217,6 @@ def register():
                 of.write('register')
             #print(state)
             return redirect(auth_url)
-        #if 'signup-discord' in request.form:
-        #    state = auth.genState()
-        #    session['state'] = state
-        #    open(f'data/states/{state}', 'w+').write('register')
-        #    return discord.create_session()
         try:
             email = request.form['email']
             password = request.form['password']
@@ -241,7 +247,7 @@ def register():
         session['user'] = json.dumps(data)
 
         return redirect(url_for('Accounts.dashboard'))
-    return render_template('core/Accounts/register.html', businessName=files.getBranding()[0])
+    return render_template('core/Accounts/register.html', googleLogin=files.readJSONVar('configs/accounts/google.json', 'enabled'), discordLogin=files.readJSONVar('configs/accounts/discord.json', 'enabled'), businessName=files.getBranding()[0])
 
 @module.route('/suspended')
 def suspended():
@@ -255,11 +261,6 @@ def logout():
     except Exception as e:
         print(e)
     return redirect(url_for('Accounts.login'))
-
-#@module.route("/callback/discord")
-#def callback_discord():
-#    discord.callback()
-#    return redirect(url_for(".me"))
 
 @module.route('/callback/discord')
 def authorizedis():
@@ -479,11 +480,35 @@ def adminManageAccounts():
             print(e)
     return render_template('core/Accounts/adminAccounts.html', accounts=accs, businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
+@module.route('/admin/{}/manageDiscord'.format(module.name), methods=['GET', 'POST'])
+@hauth.login_required
+def adminManageDiscord():
+    if request.method == 'POST':
+        print(request.form)
+        if 'isEnabled' in request.form:
+            if 'discord-enabled' in request.form:
+                files.updateJSON('configs/accounts/discord.json', 'enabled', True)
+            else:
+                files.updateJSON('configs/accounts/discord.json', 'enabled', False)
+        if 'clientID' in request.form:
+            files.updateJSON('configs/accounts/discord.json', 'client_id', request.form['clientID'])
+            module.config['OAUTH2_CLIENT_ID'] = request.form['clientID']
+        if 'clientSecret' in request.form:
+            files.updateJSON('configs/accounts/discord.json', 'client_secret', request.form['clientSecret'])
+            module.config['OAUTH2_CLIENT_SECRET'] = request.form['clientSecret']
+    return render_template('core/Accounts/adminManageDiscord.html', discordenabled=files.readJSONVar('configs/accounts/discord.json', 'enabled'), businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
+
 
 @module.route('/admin/{}/manageGoogle'.format(module.name), methods=['GET', 'POST'])
 @hauth.login_required
 def adminManageGoogle():
     if request.method == 'POST':
+        print(request.form)
+        if 'isEnabled' in request.form:
+            if 'google-enabled' in request.form:
+                files.updateJSON('configs/accounts/google.json', 'enabled', True)
+            else:
+                files.updateJSON('configs/accounts/google.json', 'enabled', False)
         if 'clientFile' in request.files:
             if request.files['clientFile'].filename != '':
                 request.files['clientFile'].save('configs/accounts/client_secret.json')
@@ -498,7 +523,7 @@ def adminManageGoogle():
         if 'clientID' in request.form:
             files.updateJSON('configs/accounts/google.json', 'client_id', request.form['clientID'])
             module.GOOGLE_CLIENT_ID = request.form['clientID']
-    return render_template('core/Accounts/adminManageGoogle.html', businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
+    return render_template('core/Accounts/adminManageGoogle.html', googleenabled=files.readJSONVar('configs/accounts/google.json', 'enabled'), businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 
 checks()

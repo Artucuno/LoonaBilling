@@ -34,12 +34,12 @@ from art import *
 import requests
 import getpass
 import git
+from git import Repo
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
 from core.utils import files
 from core.utils import network
-from git import Repo
 import urllib.parse
 
 print(os.getpid()) # Checking resource usage for pid
