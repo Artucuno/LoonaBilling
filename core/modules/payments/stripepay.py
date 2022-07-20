@@ -7,6 +7,7 @@ import os
 from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
 from core.utils import files
+from core.utils import auth
 
 stripe.api_version = '2020-08-27'
 
@@ -96,6 +97,7 @@ def Stripe_startSession():
                         ],
                         metadata = {'category': request.args['category'], 'itemID': request.args['item'], 'item': p['title']},
                     )
+                    #print(ssession)
                     return redirect(ssession.url, code=303)
     except Exception as e:
         return jsonify(error=str(e)), 403
@@ -104,7 +106,18 @@ def Stripe_startSession():
 def success():
     a = stripe.checkout.Session.retrieve(request.args['session_id'])
     # Send email after purchase. Check checkout session a['email']
-    sendMail(None, None)
+    #sendMail(None, None)
+    print(a)
+    try:
+        user = json.loads(json.dumps(auth.isAuth(session['user'])))
+        #print(user)
+        if user != False:
+            for p in user['Config']:
+                files.updateJSONargs('data/user/{}/config.json'.format(p['ID']), 'StripeCus', a['customer'])
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(e, exc_type, fname, exc_tb.tb_lineno)
     return render_template('core/Stripe/paymentSucess.html', businessName=files.getBranding()[0])
 
 @module.route("/cancelled")

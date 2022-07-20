@@ -49,7 +49,10 @@ init()
 app = Flask(__name__)
 app.adminModules = []
 app.loadedModules = []
-app.version = '1.8.1'
+try:
+    app.version = open('version', 'r').read().strip()
+except:
+    app.version = '?'
 app.hasUpdate = False
 app.secret_key = str(getnode()).encode()
 
@@ -221,8 +224,8 @@ def admin():
 @hauth.login_required
 def adminBranding():
     if request.method == 'POST':
-        files.updateJSON('configs/branding/branding.json', 'businessName', request.form['businessName'])
-        files.updateJSON('configs/branding/branding.json', 'aboutText', request.form['aboutText'])
+        files.updateJSON('configs/core/branding/branding.json', 'businessName', request.form['businessName'])
+        files.updateJSON('configs/core/branding/branding.json', 'aboutText', request.form['aboutText'])
     return render_template('core/adminBranding.html', config=files.getBranding(), app=app)
 
 @app.route('/admin/update', methods=['GET', 'POST'])

@@ -3,68 +3,28 @@
 <img src="https://img.shields.io/discord/887501133902385202?logo=discord&style=social"> <img src="https://img.shields.io/github/last-commit/Loona-cc/LoonaBilling?logo=github&style=social"> <img src="https://img.shields.io/github/workflow/status/Loona-cc/LoonaBilling/CodeQL?logo=github-sponsors&style=social">
 
 # Development Changelog
-Sorry for the late update, I tried to make this update a little bigger.
 
 ## LoonaBilling
-+ Renamed links in `templates/core/index.html`
-+ Failed module loading is deleted from `app.mods` list
-
-## Admin Dashboard
-+ Added Admin Modules Tab
-  + Enable/Disable Modules
-  + Install Modules
-
-+ Added Update Tab
-  + Check for updates
-  + Pull new updates (WIP)
-
-+ Added File Manager Tab
-  + Edit template files from the web browser
-
-+ New Admin Sidebar
-  + Branding Tab
-  + Modules Tab
-  + Update Tab
-  + File manager tab
-  + Theme Manager
-
-## Customer Dashboard
-+ Added new links
-  + Help / Support
-    + Support Page
-    + Tickets
-  + Services
-    + Payments
-
-## Config
-+ Removed Branding Settings -> Moved to Branding Tab
++ Fixed Branding Issue
 
 ## Accounts
-+ Fixed dashboard being Accounts.wrapper
-+ Added Manage Accounts Tab
-+ Suspended accounts now redirect to `error.html` with message
++ Added Settings Tab
++ Added 2FA
+  + Works with Google Authenticator
+  + Asks for verification when logging in (Todo)
++ Added Discord Login / Register
++ Added Enable / Disable for Google, Discord and Email (Todo)
++ Added hCaptcha tab (Todo)
 
-# Auth Util
-+ Updated login_is_required wrapper
-  + Fixed routes becoming module.wrapper
+## Mail (Todo)
++ Added SMTP Settings
++ Added Mail Sending
+
+## Stripe
++ Stripe adds Customer ID to user config
 
 # Files Util
-+ Added `readJSON(file)` function
-+ Added `readJSONVar(file, var)` function
-+ Added `delVarJSON(file, var)` function
-+ Added `getBranding()` function
-+ Added `Filesize(file)` function
-+ Added `endisModule(module)` function
-+ Added `moduleEnabled(module)` function
-
-# Mail Util
-+ Added Threaded Mail Sending
-
-# Network Util
-+ Added Network Util to cut down on repeated code
-
-## Divs
-+ Added adminSide div
++ Added `updateJSONargs(file, arg, content)` function
 
 # Other
 + Join our [Discord](https://loona.cc)!

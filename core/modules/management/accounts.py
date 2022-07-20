@@ -8,6 +8,8 @@ import pathlib
 import requests
 import config
 import sys, os
+from base64 import b64encode
+from io import BytesIO
 
 from core.utils.auth import hauth
 from core.utils import auth
@@ -18,7 +20,12 @@ from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
 import google.auth.transport.requests
 
-from flask_discord import DiscordOAuth2Session, requires_authorization, Unauthorized
+#from flask_discord import DiscordOAuth2Session, requires_authorization, Unauthorized
+from requests_oauthlib import OAuth2Session
+
+# OTP Libraries
+import pyotp
+import qrcode
 
 # Todo:
 # Implement Discord Login - https://gist.github.com/barzamin/590660de3ed13eaab9267f29d2a4c43f
@@ -26,22 +33,57 @@ from flask_discord import DiscordOAuth2Session, requires_authorization, Unauthor
 module = Blueprint('Accounts', __name__)
 module.hasAdminPage = True
 module.moduleDescription = 'A simple accounts module'
-module.version = '1.1'
+module.version = '1.2'
 module.config = {}
 # hCaptcha
 module.config['HCAPTCHA_ENABLED'] = False
 module.config['HCAPTCHA_SITE_KEY'] = ""
 module.config['HCAPTCHA_SECRET_KEY'] = ""
-# Google Login
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-# Discord Login
-#os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "true"      # !! Only in development environment.
-#module.config["DISCORD_CLIENT_ID"] =     # Discord client ID.
-#module.config["DISCORD_CLIENT_SECRET"] = ""                # Discord client secret.
-#module.config["DISCORD_REDIRECT_URI"] = config.domain_url+"callback/discord"                 # URL to your callback endpoint.
-
 hcaptcha = hCaptcha(module)
-#discord = DiscordOAuth2Session(module)
+
+# Discord Login
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+module.config['API_BASE_URL'] = 'https://discordapp.com/api'
+module.config['OAUTH2_CLIENT_ID'] = ''
+module.config['OAUTH2_CLIENT_SECRET'] = ''
+module.config['BASE_AUTH_URL'] = module.config['API_BASE_URL'] + '/oauth2/authorize'
+module.config['TOKEN_URL'] = module.config['API_BASE_URL'] + '/oauth2/token'
+module.config['REQUESTED_SCOPES'] = ['identify', 'email']
+
+def oauth2_token_updater(token):
+	session['oauth2_token'] = token
+
+def oauth2_session(token=None, state=None, scope=None):
+    return OAuth2Session(
+    	client_id=module.config['OAUTH2_CLIENT_ID'],
+    	token=token,
+    	state=state,
+    	scope=scope,
+    	redirect_uri=url_for('.authorizedis', _external=True),
+    	auto_refresh_kwargs = {
+    		'client_id': module.config['OAUTH2_CLIENT_ID'],
+    		'client_secret': module.config['OAUTH2_CLIENT_SECRET'],
+    	},
+    	auto_refresh_url=module.config['TOKEN_URL'],
+    	token_updater=oauth2_token_updater)
+
+def discord_get_user():
+    discord = oauth2_session(token=session.get('oauth2_token'))
+    user_dat = discord.get(module.config['API_BASE_URL'] + '/users/@me').json()
+    print(user_dat)
+    return user_dat
+
+def discord_get_guilds():
+    discord = oauth2_session(token=session.get('oauth2_token'))
+    guilds_dat = discord.get(module.config['API_BASE_URL'] + '/users/@me/guilds').json()
+    print(guilds_dat)
+    return guilds_dat
+
+def discord_get_connections():
+    discord = oauth2_session(token=session.get('oauth2_token'))
+    connections_dat = discord.get(module.config['API_BASE_URL'] + '/users/@me/connections').json()
+    print(connections_dat)
+    return connections_dat
 
 def cf(folder):
     try:
@@ -56,6 +98,8 @@ def checks():
     cf('data/user')
     cf('data/states')
     cf('configs/accounts')
+    if not os.path.isfile('configs/accounts/otp.txt'):
+        open('configs/accounts/otp.txt', 'w+').write(pyotp.random_base32())
     if not os.path.isfile('configs/accounts/google.json'):
         data = {}
         data['Config'] = []
@@ -85,7 +129,14 @@ def checks():
                     print(Fore.YELLOW + f'[{module.name}] ' + Style.RESET_ALL + 'Unable to load Google Flow')#, e)
     except Exception as e:
         print('Accounts checks', e)
-
+    try:
+        for f in os.listdir('data/states'):
+            try:
+                os.remove(f'data/states/{f}')
+            except:
+                print('[Accounts] Unable to remove {f} state')
+    except:
+        print()
 
 @module.route('/login', methods=['GET', 'POST'])
 def login():
@@ -96,6 +147,16 @@ def login():
             with open(f'data/states/{state}', 'w+') as of:
                 of.write('login')
             return redirect(authorization_url)
+        if 'login-discord' in request.form:
+            discord = oauth2_session(scope=module.config['REQUESTED_SCOPES'])
+            auth_url, state = discord.authorization_url(module.config['BASE_AUTH_URL'])
+            session['oauth2_state'] = state
+            session['next'] = ''
+            session["state"] = state
+            with open(f'data/states/{state}', 'w+') as of:
+                of.write('login')
+            #print(state)
+            return redirect(auth_url)
         #if 'login-discord' in request.form:
         #    return discord.create_session()
         try:
@@ -135,6 +196,16 @@ def register():
             with open(f'data/states/{state}', 'w+') as of:
                 of.write('register')
             return redirect(authorization_url)
+        if 'signup-discord' in request.form:
+            discord = oauth2_session(scope=module.config['REQUESTED_SCOPES'])
+            auth_url, state = discord.authorization_url(module.config['BASE_AUTH_URL'])
+            session['oauth2_state'] = state
+            session['next'] = ''
+            session["state"] = state
+            with open(f'data/states/{state}', 'w+') as of:
+                of.write('register')
+            #print(state)
+            return redirect(auth_url)
         #if 'signup-discord' in request.form:
         #    state = auth.genState()
         #    session['state'] = state
@@ -160,6 +231,8 @@ def register():
         'external': False,
         'ID': userID,
         'type': 'user',
+        'secret': str(pyotp.random_base32()),
+        '2fa': False,
         'suspended': {'isSuspended': False, 'reason': 'No reason'},
         'args': {}
         })
@@ -188,6 +261,79 @@ def logout():
 #    discord.callback()
 #    return redirect(url_for(".me"))
 
+@module.route('/callback/discord')
+def authorizedis():
+    if request.values.get('error'):
+        error = request.values['error']
+        print(error)
+        return redirect(url_for('Accounts.login'))
+
+    discord = oauth2_session(state=session['oauth2_state'])
+    token = discord.fetch_token(module.config['TOKEN_URL'],
+    	client_secret=module.config['OAUTH2_CLIENT_SECRET'],
+    	authorization_response=request.url)
+
+    session['oauth2_token'] = token
+
+    user = discord_get_user()
+    print(user)
+    #return str(user)
+
+    try:
+        with open(f'data/states/{session["state"]}', 'r') as of:
+            st = of.read().strip()
+            #print(st == 'register')
+            #print(st == 'login')
+            of.close()
+            os.remove(f'data/states/{session["state"]}')
+
+            if st == 'register':
+                if auth.isEmail(user['email']):
+                    return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
+                userID = auth.getUserCount()
+                cf('data/user/{}'.format(userID))
+                data = {}
+                data['Config'] = []
+                data['Config'].append({
+                'email': user['email'],
+                'password': str(auth.encKey(user['email']).decode()),
+                'external': True,
+                'ID': userID,
+                'secret': str(pyotp.random_base32()),
+                '2fa': False,
+                'suspended': {'isSuspended': False, 'reason': 'No reason'},
+                'type': 'user',
+                'args': {'type': 'discord'}
+                })
+                with open('data/user/{}/config.json'.format(userID), 'w+') as of:
+                    json.dump(data, of)
+                session['user'] = json.dumps(data)
+                return redirect(url_for('Accounts.dashboard'))
+            if st == 'login':
+                #print('login')
+                if auth.isEmail(user['email']):
+                    #return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
+                    data = {}
+                    data['Config'] = []
+                    data['Config'].append({
+                    'email': user['email'],
+                    'password': str(auth.encKey(user['email']).decode()),
+                    'external': True,
+                    'ID': auth.getID(user['email'])
+                    })
+                    userlog = auth.logAuth(data)
+                    #print(user)
+                    if userlog != False:
+                        session['user'] = json.dumps(userlog)
+                        return redirect(url_for('Accounts.dashboard'))
+                    else:
+                        return redirect(url_for('Accounts.login'))
+                else:
+                    return redirect(url_for('Accounts.register'))
+    except Exception as e:
+        print(e)
+    return 'Error'
+
 @module.route("/callback/google") # Google Callback
 def callback_google():
     module.flow.fetch_token(authorization_response=request.url)
@@ -212,6 +358,8 @@ def callback_google():
             st = of.read().strip()
             #print(st == 'register')
             #print(st == 'login')
+            of.close()
+            os.remove(f'data/states/{session["state"]}')
 
             if st == 'register':
                 if auth.isEmail(id_info['email']):
@@ -225,6 +373,8 @@ def callback_google():
                 'password': str(auth.encKey(id_info['email']).decode()),
                 'external': True,
                 'ID': userID,
+                'secret': str(pyotp.random_base32()),
+                '2fa': False,
                 'suspended': {'isSuspended': False, 'reason': 'No reason'},
                 'type': 'user',
                 'args': {'type': 'google'}
@@ -253,7 +403,7 @@ def callback_google():
                     else:
                         return redirect(url_for('Accounts.login'))
                 else:
-                    return 'Invalid email'
+                    return redirect(url_for('Accounts.register'))
     except Exception as e:
         print(e)
     return 'Error'#str(id_info)
@@ -268,6 +418,43 @@ def dashboard():
             for p in user['Config']:
                 #print('a')
                 return render_template('core/Accounts/dashboard.html', businessName=files.getBranding()[0], email=p['email'])
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(e, exc_type, fname, exc_tb.tb_lineno)
+    return redirect(url_for('Accounts.login'))
+
+@module.route('/dashboard/payments', methods=['GET', 'POST'])
+@auth.login_is_required
+def dashboardPayments():
+    try:
+        user = json.loads(json.dumps(auth.isAuth(session['user'])))
+        #print(user)
+        if user != False:
+            for p in user['Config']:
+                #print('a')
+                return render_template('core/Accounts/dashboardPayments.html', businessName=files.getBranding()[0], email=p['email'])
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(e, exc_type, fname, exc_tb.tb_lineno)
+    return redirect(url_for('Accounts.login'))
+
+@module.route('/settings', methods=['GET', 'POST'])
+@auth.login_is_required
+def settings():
+    try:
+        user = json.loads(json.dumps(auth.isAuth(session['user'])))
+        if user != False:
+            for p in user['Config']:
+                if request.method == 'POST':
+                    fa = pyotp.totp.TOTP(p['secret'])
+                    img = qrcode.make(fa.provisioning_uri(name=f'{files.getBranding()[0]} Login', issuer_name=files.getBranding()[0]))
+                    image_io = BytesIO()
+                    img.save(image_io, 'PNG')
+                    dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
+                    return render_template('core/Accounts/settings.html', qr=dataurl, businessName=files.getBranding()[0], email=p['email'])
+                return render_template('core/Accounts/settings.html', businessName=files.getBranding()[0], email=p['email'])
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

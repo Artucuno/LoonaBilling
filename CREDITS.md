@@ -1,4 +1,5 @@
-https://github.com/smartboyathome/Cheshire-Engine/blob/master/ScoringServer/utils.py
-https://www.w3schools.com/
-https://nitratine.net/blog/post/encryption-and-decryption-in-python
-https://stackoverflow.com/a/55137835
+https://github.com/smartboyathome/Cheshire-Engine/blob/master/ScoringServer/utils.py (Blueprint Loading)
+https://www.w3schools.com/ (Design help)
+https://nitratine.net/blog/post/encryption-and-decryption-in-python (Encryption in Python)
+https://stackoverflow.com/a/55137835 (Git Repo name function)
+https://gist.github.com/barzamin/590660de3ed13eaab9267f29d2a4c43f (Discord Login help)
