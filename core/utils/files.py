@@ -40,7 +40,7 @@ def delVarJSON(file, arg):
 
 def readJSON(file):
     with open(file) as of:
-        data = json.loads(of)
+        data = json.load(of)
         return data
 
 def readJSONVar(file, var):

@@ -19,7 +19,7 @@ A WIP Open-source WHMCS alternative.
 - [x] Product Management
   - [x] Stripe Products Integration
 - [x] Storefront
-- [ ] Email Sending (W.I.P)
+- [x] Email Sending (W.I.P)
   - [ ] Purchase Messages
   - [ ] Contact Messages
   - [ ] Account Registration Messages
@@ -31,7 +31,7 @@ A WIP Open-source WHMCS alternative.
 - [x] Multiple Login Methods
   - [x] Email Login
   - [x] Google Login
-  - [ ] Discord Login
+  - [x] Discord Login
 
 # TODO
 - [ ] Shopping Cart
