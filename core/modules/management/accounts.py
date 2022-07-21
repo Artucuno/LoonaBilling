@@ -111,6 +111,7 @@ def checks():
 	cf('data')
 	cf('data/user')
 	cf('data/states')
+	cf('data/2fa')
 	cf('configs/accounts')
 	if not os.path.isfile('configs/accounts/otp.txt'):
 		open('configs/accounts/otp.txt', 'w+').write(pyotp.random_base32())
@@ -245,12 +246,32 @@ def login():
 		})
 		user = auth.logAuth(data)
 		if user != False:
+			if auth.getUser(auth.getID(email))['Config'][0]['2fa']:
+				session['2fa'] = auth.gen2FA(data)
+				return redirect(url_for('Accounts.twofa'))
 			session['user'] = json.dumps(user)
 			return redirect(url_for('Accounts.dashboard'))
 		else:
 			return render_template('core/Accounts/login.html', msg='Incorrect email or password', businessName=files.getBranding()[0])
 
 	return render_template('core/Accounts/login.html', githubLogin=files.readJSONVar('configs/accounts/github.json', 'enabled'), googleLogin=files.readJSONVar('configs/accounts/google.json', 'enabled'), discordLogin=files.readJSONVar('configs/accounts/discord.json', 'enabled'), businessName=files.getBranding()[0])
+
+@module.route('/2fa', methods=['GET', 'POST'])
+def twofa():
+	if '2fa' in session:
+		with open('data/2fa/{}'.format(session['2fa'])) as of:
+			data = json.load(of)
+			for p in data['Config']:
+				user = auth.getUser(auth.getID(p['email']))
+				if request.method == 'POST':
+					if pyotp.totp.TOTP(user['Config'][0]['secret']).verify(request.form['2fa']):
+						session['user'] = json.dumps(data)
+						session['2fa'] = None
+						return redirect(url_for('Accounts.dashboard'))
+					else:
+						return render_template('core/Accounts/2fa.html', msg='Incorrect Code', businessName=files.getBranding()[0])
+				return render_template('core/Accounts/2fa.html', businessName=files.getBranding()[0])
+	return redirect(url_for('Accounts.dashboard'))
 
 @module.route('/register', methods=['GET', 'POST'])
 def register():
@@ -594,13 +615,20 @@ def settings():
 		if user != False:
 			for p in user['Config']:
 				if request.method == 'POST':
-					fa = pyotp.totp.TOTP(p['secret'])
-					img = qrcode.make(fa.provisioning_uri(name=f'{files.getBranding()[0]} Login', issuer_name=files.getBranding()[0]))
-					image_io = BytesIO()
-					img.save(image_io, 'PNG')
-					dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
-					return render_template('core/Accounts/settings.html', qr=dataurl, businessName=files.getBranding()[0], email=p['email'])
-				return render_template('core/Accounts/settings.html', businessName=files.getBranding()[0], email=p['email'])
+					print(request.form)
+					if 'gen2FA' in request.form:
+						fa = pyotp.totp.TOTP(p['secret'])
+						img = qrcode.make(fa.provisioning_uri(name=f'{files.getBranding()[0]} Login', issuer_name=files.getBranding()[0]))
+						image_io = BytesIO()
+						img.save(image_io, 'PNG')
+						dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
+						return render_template('core/Accounts/settings.html', faenabled=files.readJSONVar('data/user/{}/config.json'.format(p['ID']), '2fa'), qr=dataurl, businessName=files.getBranding()[0], email=p['email'])
+					if 'is2FA' in request.form:
+						if 'enable-2fa' in request.form:
+							files.updateJSON('data/user/{}/config.json'.format(p['ID']), '2fa', True)
+						else:
+							files.updateJSON('data/user/{}/config.json'.format(p['ID']), '2fa', False)
+				return render_template('core/Accounts/settings.html', faenabled=files.readJSONVar('data/user/{}/config.json'.format(p['ID']), '2fa'), businessName=files.getBranding()[0], email=p['email'])
 	except Exception as e:
 		exc_type, exc_obj, exc_tb = sys.exc_info()
 		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

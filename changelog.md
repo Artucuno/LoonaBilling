@@ -16,7 +16,7 @@
 + Added Enable / Disable for Google, Discord and Email
 + Added hCaptcha Tab
 + Added Github Login
-  + Add Enable / Disable (Todo)
+  + Add Enable / Disable
 
 ## Products
 + Added Product importing from Payment Providers

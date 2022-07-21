@@ -14,9 +14,19 @@
   <hr>
   <label for="email">Email: </label>
   <input type="text" name="email" placeholder="Email" value="{{ email }}" disabled>
+  <br><hr>
+  <form method="POST">
+    <label for="enable-2fa">Enable 2FA</label>
+    {% if faenabled %}
+    <input type="checkbox" name="enable-2fa" checked>
+    {% else %}
+    <input type="checkbox" name="enable-2fa">
+    {% endif %}
+    <button type="submit" name="is2FA">Update</button>
+  </form>
   <br>
   <form method="POST">
-    <button name='gen2FA'>Generate 2FA QrCode</button>
+    <button name='gen2FA'>Generate 2FA QrCode</button><br>
     <image src="{{ qr }}"></image>
   </form>
 </div>

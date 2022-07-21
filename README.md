@@ -25,6 +25,8 @@ A WIP Open-source WHMCS alternative.
   - [ ] Account Registration Messages
 - [x] Website Search (W.I.P)
 - [x] User Management (W.I.P)
+  - [x] Two Factor Authention
+    - [x] Google Authenticator
   - [x] Basic Accounts
   - [ ] Affiliate Accounts
   - [ ] Reseller Accounts
