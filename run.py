@@ -33,8 +33,12 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from art import *
 import requests
 import getpass
-import git
-from git import Repo
+try:
+    import git
+    from git import Repo
+    gitEnabled = True
+except:
+    gitEnabled = False
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
@@ -218,7 +222,19 @@ loadModules()
 @app.route('/admin')
 @hauth.login_required
 def admin():
-    return render_template('core/admin.html', app=app, cpuUsage=int(psutil.cpu_percent()), ramUsage=int(psutil.virtual_memory().percent), storageUsage=int(psutil.disk_usage('/').percent))
+    try:
+        cpuUsage = int(psutil.cpu_percent())
+    except:
+        cpuUsage = 0
+    try:
+        ramUsage = int(psutil.virtual_memory().percent)
+    except:
+        ramUsage = 0
+    try:
+        storageUsage = int(psutil.disk_usage('/').percent)
+    except:
+        storageUsage = 0
+    return render_template('core/admin.html', app=app, cpuUsage=cpuUsage, ramUsage=ramUsage, storageUsage=storageUsage)
 
 @app.route('/admin/branding', methods=['GET', 'POST'])
 @hauth.login_required
@@ -234,9 +250,12 @@ def adminUpdate():
     if request.method == 'POST':
         print(request.form)
         if 'update' in request.form:
-            repo = git.Repo("")
-            o = repo.remotes.origin
-            o.pull()
+            if gitEnabled:
+                repo = git.Repo("")
+                o = repo.remotes.origin
+                o.pull()
+            else:
+                return 'Git module not enabled'
         if 'checkUpdate' in request.form:
             try:
                 x = requests.get('https://raw.githubusercontent.com/Loona-cc/LoonaBilling/main/version', timeout=3)

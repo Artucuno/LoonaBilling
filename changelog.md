@@ -6,12 +6,14 @@
 
 ## LoonaBilling
 + Fixed Branding Issue
++ Added Error Handling for Admin Dashboard stats
++ Added Error Handling for Git Library
 
 ## Accounts
 + Added Settings Tab
 + Added 2FA
   + Works with Google Authenticator
-  + Asks for verification when logging in (Todo)
+  + Asks for verification when logging in
 + Added Discord Login / Register
 + Added Enable / Disable for Google, Discord and Email
 + Added hCaptcha Tab
@@ -23,8 +25,7 @@
   + Show Products
   + Import Products (Todo)
 
-
-## Mail (Todo)
+## Mail
 + Added SMTP Settings
 + Added Mail Sending
 
