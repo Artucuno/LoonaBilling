@@ -8,15 +8,27 @@ for root, dirs, files in os.walk(".", topdown=False):
 
 rmtrees = ["products", "data", "static/assets/prodimages","configs"]
 for i in range(6):
-    if i == 1:
-        os.remove('setup')
+    if i == 0:
+        try:
+            os.remove('setup')
+        except FileNotFoundError:
+            print("Setup file not found.")
     else:
-        if i == 6:
-            shutil.rmtree('logs')
-            os.mkdir('logs')
-            open('logs/README.md', 'w+')
+        if i == 5:
+            try:
+                shutil.rmtree('logs')
+                os.mkdir('logs')
+                with open('logs/README.md', "w+") as e: pass
+            except Exception as e:
+                exit(e)
         else:
-            shutil.rmtree(rmtrees[i])
+            try:
+                shutil.rmtree(rmtrees[i-1])
+            except FileNotFoundError as e:
+                exit(f"tree: {rmtrees[i-1]} was not found.")
+
+
+
 
 a = input("LoonaBilling Update Script \n1. Main Branch \n2. Development Branch\n>>> """)
 if isinstance(a, int) == False:
