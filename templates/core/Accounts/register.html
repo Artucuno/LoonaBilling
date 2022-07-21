@@ -25,7 +25,10 @@
     {% endif %}
     {% if discordLogin %}
     <button name='signup-discord' type="submit">Signup with <i class="fa-brands fa-discord"></i></button>
-    {% endif %} <!--<button name='signup-discord' type="submit"><i class="fa-brands fa-discord"></i></button>-->
+    {% endif %}
+    {% if githubLogin %}
+    <button name='signup-github' type="submit">Signup with <i class="fa-brands fa-github"></i></button>
+    {% endif %}
     <a href='/login'>Have an account?</a>
   </form>
 </div>

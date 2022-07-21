@@ -84,6 +84,22 @@ def deleteCategory():
     return render_template('core/LoonaProducts/adminDeleteCategory.html', businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 
+@module.route('/admin/{}/manageProducts'.format(module.name), methods=['GET', 'POST'])
+@hauth.login_required
+def manageProducts():
+    prods = []
+    try:
+        for f in mods:
+            try:
+                rgs = getattr(mods[f], 'getProducts')()
+                #print(rgs)
+                prods += [(getattr(mods[f], 'module').name, rgs)]
+            except:
+                print(f'[Payments] Unable to get products for {mods[f]}')
+        return render_template('core/LoonaProducts/adminManageProducts.html', prods=prods)
+    except Exception as e:
+        return str(e)
+
 @module.route('/admin/{}/createProduct'.format(module.name), methods=['GET', 'POST'])
 @hauth.login_required
 def createProduct():

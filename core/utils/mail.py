@@ -4,6 +4,8 @@ from email.mime.text import MIMEText
 from threading import Thread
 from core.utils import files
 import config
+from uuid import getnode
+from cryptography.fernet import Fernet
 
 def sendMailThread(recipient, message, subject):
     if not config.mailEnabled:
@@ -18,7 +20,7 @@ def sendMailThread(recipient, message, subject):
         try:
             with smtplib.SMTP_SSL(p['hostname'], port) as server:
                 server.ehlo()
-                server.login(p['username'], p['password'])
+                server.login(p['username'], Fernet(getnode().encode()).decrypt(p['password'].encode()))
                 msg = '''\
 Subject: {}
 From: {}

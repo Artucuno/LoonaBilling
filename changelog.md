@@ -13,8 +13,16 @@
   + Works with Google Authenticator
   + Asks for verification when logging in (Todo)
 + Added Discord Login / Register
-+ Added Enable / Disable for Google, Discord and Email (Todo)
-+ Added hCaptcha tab (Todo)
++ Added Enable / Disable for Google, Discord and Email
++ Added hCaptcha Tab
++ Added Github Login
+  + Add Enable / Disable (Todo)
+
+## Products
++ Added Product importing from Payment Providers
+  + Show Products
+  + Import Products (Todo)
+
 
 ## Mail (Todo)
 + Added SMTP Settings

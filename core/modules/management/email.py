@@ -8,6 +8,8 @@ from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
 from core.utils import files
 import json
+from uuid import getnode
+from cryptography.fernet import Fernet
 
 module = Blueprint('Mail', __name__)
 module.hasAdminPage = True
@@ -52,7 +54,7 @@ def editSettings():
         print(request.form)
         files.updateJSON('configs/mail/config.json', 'hostname', request.form['mailServer'])
         files.updateJSON('configs/mail/config.json', 'username', request.form['mailName'])
-        files.updateJSON('configs/mail/config.json', 'password', request.form['mailPassword'])
+        files.updateJSON('configs/mail/config.json', 'password', Fernet(getnode().encode()).encrypt(request.form['mailPassword'].encode()).decode())
         files.updateJSON('configs/mail/config.json', 'port', request.form['port'])
         files.updateJSON('configs/mail/config.json', 'tsslreqired', 'req' in request.form)
     return render_template('core/Mail/adminEditSettings.html', businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)

@@ -41,6 +41,12 @@ def checks():
 
 checks()
 
+def getProducts():
+    try:
+        return stripe.Product.list()
+    except:
+        return {}
+
 def createProduct(data, image, description, price):
     print(data)
     print(image)
