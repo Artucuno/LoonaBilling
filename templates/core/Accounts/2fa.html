@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{ businessName }} - 2FA</title>
+<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+<link rel="stylesheet" href="/static/fontawesome/css/brands.css">
+{% include 'divs/theme.html' %}
+</head>
+<body>
+{% include 'divs/navbar.html' %}
+<div style="padding-left:16px">
+  <center>
+    <h1 style="color: gold"><i class="fa-solid fa-lock"></i></h1>
+    <h2>Enter 2FA</h2>
+    <p>Welcome back to {{ businessName }}, to continue please enter your 2FA Code.</p>
+    <form method="POST">
+      <input type="text" name="2fa" placeholder="Your 2FA Code" required>
+      <button type="submit">Continue</button>
+    </form>
+    {{ msg }}
+  </center>
+</div>
+
+</body>
+{% include 'divs/footer.html' %}
+</html>

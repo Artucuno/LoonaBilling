@@ -57,42 +57,73 @@ div.content {
     float: none;
   }
 }
+.center {
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.form-input {
+  width:250px;
+  padding:20px;
+  background:#fff;
+  float: right;
+}
+.form-input input {
+  display:none;
+}
+.form-input label {
+  display:block;
+  width:100%;
+  height:50px;
+  line-height:50px;
+  text-align:center;
+  background:#333;
+  color:#fff;
+  font-size:15px;
+  font-family:"Open Sans",sans-serif;
+  text-transform:Uppercase;
+  font-weight:600;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.form-input img {
+  width:100%;
+  display:none;
+  margin-top:10px;
+}
 </style>
 </head>
 <body>
 
 <div class="sidebar">
-  <a href="/admin">Back</a>
+  <a href="/admin/{{ moduleName }}">Back</a>
   <a class="active">Current</a>
 </div>
 
 <div class="content">
-  <h2>Manage Accounts - {{ moduleName }}</h2>
+  <h2>Manage Products -  {{ moduleName }}</h2>
   <p>{{ moduleDescription }}</h3>
     <hr>
-    <h2>Management</h2>
-    <h2>Google Settings</h2>
-    <form method="POST">
-      {% if googleenabled %}
-      <input type="checkbox" name='google-enabled' checked>
-      {% else %}
-      <input type="checkbox" name='google-enabled'>
-      {% endif %}
-      <label for="google-enabled">Google Login Enabled</label><br>
-      <button name='isEnabled' style="submit">Update</button>
-    </form><br><hr>
-    <form method="POST" enctype="multipart/form-data">
-      <input type="file" name='clientFile'>
-      <label for="clientFile">Client JSON file</label>
-      <br>
-      <button style="submit">Update</button>
-    </form><br><hr>
-    <form method="POST">
-      <input name="clientID" type="text" placeholder="Client ID">
-      <br>
-      <button style="submit">Update</button>
-    </form><br><hr>
+    {% for f in prods %}
+    <h2>{{ f[0] }}</h2>
+    {% for ff in f[1] %}
+    {{ ff['name'] }} - {{ ff['description'] }}
+    <hr>
+    {% endfor %}
+    {% endfor %}
 </div>
 
 </body>
+<script>
+function showPreview(event){
+  if(event.target.files.length > 0){
+    var src = URL.createObjectURL(event.target.files[0]);
+    var preview = document.getElementById("file-ip-1-preview");
+    preview.src = src;
+    preview.style.display = "block";
+  }
+}
+</script>
 </html>

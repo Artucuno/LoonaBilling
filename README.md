@@ -13,25 +13,33 @@ A WIP Open-source WHMCS alternative.
 - [x] Built with Flask
 - [x] Lightweight
 - [x] [Stripe](https://stripe.com) Support
+- [x] [PayPal](https://paypal.com) Support (WIP)
 - [x] Fully Modular Design
   - [x] Custom Module Support
 - [x] Admin Panel
 - [x] Product Management
   - [x] Stripe Products Integration
 - [x] Storefront
-- [ ] Email Sending (W.I.P)
+- [x] Email Sending (WIP)
   - [ ] Purchase Messages
   - [ ] Contact Messages
   - [ ] Account Registration Messages
-- [x] Website Search (W.I.P)
-- [x] User Management (W.I.P)
+- [x] Website Search
+- [x] User Management
+  - [x] Two Factor Authentication
+    - [x] Google Authenticator
   - [x] Basic Accounts
   - [ ] Affiliate Accounts
   - [ ] Reseller Accounts
 - [x] Multiple Login Methods
   - [x] Email Login
   - [x] Google Login
-  - [ ] Discord Login
+  - [x] Discord Login
+  - [x] Github Login
+- [x] [hCaptcha](https://www.hcaptcha.com/)
+
+# Contribution
+All contributions are welcome! Just create a fork and open up a Pull Request :)
 
 # TODO
 - [ ] Shopping Cart
@@ -42,4 +50,3 @@ A WIP Open-source WHMCS alternative.
 - [ ] Management API
   - [ ] Account Management
   - [ ] Product Management
-- [ ] [PayPal](https://paypal.com) Support (?)

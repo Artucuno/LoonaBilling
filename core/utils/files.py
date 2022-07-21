@@ -14,6 +14,18 @@ def updateJSON(file, arg, content):
     except Exception as e:
         print(e)
 
+def updateJSONargs(file, arg, content):
+    try:
+        with open(file) as of:
+            data = json.load(of)
+            data['Config'][0]['args'][arg] = content
+            of.close()
+            #print(data)
+            with open(file, 'w+') as off:
+                json.dump(data, off)
+    except Exception as e:
+        print(e)
+
 def delVarJSON(file, arg):
     try:
         with open(file) as of:
@@ -28,7 +40,7 @@ def delVarJSON(file, arg):
 
 def readJSON(file):
     with open(file) as of:
-        data = json.loads(of)
+        data = json.load(of)
         return data
 
 def readJSONVar(file, var):

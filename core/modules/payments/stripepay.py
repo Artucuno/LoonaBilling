@@ -7,6 +7,8 @@ import os
 from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
 from core.utils import files
+from core.utils import auth
+from urllib.parse import urljoin
 
 stripe.api_version = '2020-08-27'
 
@@ -39,6 +41,12 @@ def checks():
     cf('products')
 
 checks()
+
+def getProducts():
+    try:
+        return stripe.Product.list()
+    except:
+        return {}
 
 def createProduct(data, image, description, price):
     print(data)
@@ -84,8 +92,8 @@ def Stripe_startSession():
                 for p in data['Config']:
 
                     ssession = stripe.checkout.Session.create(
-                        success_url=config.domain_url + "success?session_id={CHECKOUT_SESSION_ID}",
-                        cancel_url=config.domain_url + "cancelled",
+                        success_url=config.domain_url + "stripe/success?session_id={CHECKOUT_SESSION_ID}",
+                        cancel_url=config.domain_url + "stripe/cancelled",
                         #payment_method_types=["card"],
                         mode="payment",
                         line_items=[
@@ -96,18 +104,30 @@ def Stripe_startSession():
                         ],
                         metadata = {'category': request.args['category'], 'itemID': request.args['item'], 'item': p['title']},
                     )
+                    #print(ssession)
                     return redirect(ssession.url, code=303)
     except Exception as e:
         return jsonify(error=str(e)), 403
 
-@module.route("/success")
+@module.route("/stripe/success")
 def success():
     a = stripe.checkout.Session.retrieve(request.args['session_id'])
     # Send email after purchase. Check checkout session a['email']
-    sendMail(None, None)
+    #sendMail(None, None)
+    print(a)
+    try:
+        user = json.loads(json.dumps(auth.isAuth(session['user'])))
+        #print(user)
+        if user != False:
+            for p in user['Config']:
+                files.updateJSONargs('data/user/{}/config.json'.format(p['ID']), 'StripeCus', a['customer'])
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(e, exc_type, fname, exc_tb.tb_lineno)
     return render_template('core/Stripe/paymentSucess.html', businessName=files.getBranding()[0])
 
-@module.route("/cancelled")
+@module.route("/stripe/cancelled")
 def cancelled():
     return render_template('core/Stripe/paymentCancelled.html', businessName=files.getBranding()[0])
 import sys

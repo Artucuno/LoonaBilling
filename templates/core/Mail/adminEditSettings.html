@@ -72,7 +72,15 @@ div.content {
     <hr>
     <h2>Management</h2>
     <form method="POST">
-      <input type="text" name='mailServer' placeholder="Mail Server" required>
+      <input type="text" name='mailServer' placeholder="Mail Server (EG: mail.loona.cc)" required><br>
+      <input type="email" name='mailName' placeholder="Username (EG: no-reply@loona.cc)" required><input type="password" name='mailPassword' placeholder="Password" required><br>
+      <select name='port'>
+        <option value="587">TLS (Port: 587)</option>
+        <option value="465">SSL (Port: 465)</option>
+      </select>
+      <label for="req">TLS/SSL Required</label>
+      <input type="checkbox" name='req'><br>
+      <button style="submit">Update</button>
     </form>
 </div>
 

@@ -71,24 +71,23 @@ div.content {
   <p>{{ moduleDescription }}</h3>
     <hr>
     <h2>Management</h2>
-    <h2>Google Settings</h2>
+    <h2>Github Settings</h2>
     <form method="POST">
-      {% if googleenabled %}
-      <input type="checkbox" name='google-enabled' checked>
+      {% if githubenabled %}
+      <input type="checkbox" name='github-enabled' checked>
       {% else %}
-      <input type="checkbox" name='google-enabled'>
+      <input type="checkbox" name='github-enabled'>
       {% endif %}
-      <label for="google-enabled">Google Login Enabled</label><br>
+      <label for="github-enabled">Github Login Enabled</label><br>
       <button name='isEnabled' style="submit">Update</button>
     </form><br><hr>
-    <form method="POST" enctype="multipart/form-data">
-      <input type="file" name='clientFile'>
-      <label for="clientFile">Client JSON file</label>
+    <form method="POST">
+      <input name="clientID" type="text" placeholder="Client ID">
       <br>
       <button style="submit">Update</button>
     </form><br><hr>
     <form method="POST">
-      <input name="clientID" type="text" placeholder="Client ID">
+      <input name="clientSecret" type="text" placeholder="Client Secret">
       <br>
       <button style="submit">Update</button>
     </form><br><hr>

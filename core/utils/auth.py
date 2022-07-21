@@ -14,6 +14,24 @@ from functools import update_wrapper
 
 hauth = HTTPBasicAuth()
 
+def gen2FA(data):
+    a = ''
+    for f in range(random.randint(30,50)):
+        a += random.choice(string.ascii_letters)
+    if a in os.listdir('data/2fa'):
+        return gen2FA()
+    with open(f'data/2fa/{a}', 'w+') as of:
+        json.dump(data, of)
+    return a
+
+def getUser(id):
+    try:
+        with open(f'data/user/{id}/config.json') as of:
+            data = json.load(of)
+            return data
+    except:
+        return False
+
 def login_is_required(function):
     def wrapper(*args, **kwargs):
         if "user" not in session:
@@ -87,7 +105,7 @@ def genState():
     for f in range(random.randint(10,30)):
         a += random.choice(string.ascii_letters)
     if a in os.listdir('data/states'):
-        return genState
+        return genState()
     return a
 
 def isAuth(sess):

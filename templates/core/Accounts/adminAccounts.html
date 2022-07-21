@@ -116,6 +116,16 @@ div.content {
     {% else %}
     <i style="color: lightgreen" class="fa-solid fa-user-check"></i>
     {% endif %}
+
+    {% if p['args']['type'] == 'google' %}
+    <i class="fa-brands fa-google"></i>
+    {% elif p['args']['type'] == 'discord' %}
+    <i class="fa-brands fa-discord"></i>
+    {% elif p['args']['type'] == 'github' %}
+    <i class="fa-brands fa-github"></i>
+    {% else %}
+    <i class="fa-solid fa-envelope"></i>
+    {% endif %}
     {{ p['email'] }}</button>
     <div class="contente">
       <p>{{ p['email'] }} - Suspended: {{ p['suspended']['isSuspended'] }}</p>

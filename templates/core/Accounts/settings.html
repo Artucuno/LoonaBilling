@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{ businessName }} - Settings</title>
+<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+<link rel="stylesheet" href="/static/fontawesome/css/brands.css">
+{% include 'divs/theme.html' %}
+</head>
+<body>
+{% include 'divs/dashnav.html' %}
+<div style="padding-left:16px">
+  <h2>Account Settings.</h2>
+  <p>Manage your account settings.</p>
+  <hr>
+  <label for="email">Email: </label>
+  <input type="text" name="email" placeholder="Email" value="{{ email }}" disabled>
+  <br><hr>
+  <form method="POST">
+    <label for="enable-2fa">Enable 2FA</label>
+    {% if faenabled %}
+    <input type="checkbox" name="enable-2fa" checked>
+    {% else %}
+    <input type="checkbox" name="enable-2fa">
+    {% endif %}
+    <button type="submit" name="is2FA">Update</button>
+  </form>
+  <br>
+  <form method="POST">
+    <button name='gen2FA'>Generate 2FA QrCode</button><br>
+    <image src="{{ qr }}"></image>
+  </form>
+</div>
+
+</body>
+{% include 'divs/footer.html' %}
+</html>
