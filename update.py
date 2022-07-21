@@ -7,28 +7,17 @@ for root, dirs, files in os.walk(".", topdown=False):
             shutil.rmtree(os.path.join(root, name))
 
 rmtrees = ["products", "data", "static/assets/prodimages","configs"]
-for i in range(6):
-    if i == 0:
-        try:
-            os.remove('setup')
-        except FileNotFoundError:
-            print("Setup file not found.")
-    else:
-        if i == 5:
-            try:
-                shutil.rmtree('logs')
-                os.mkdir('logs')
-                with open('logs/README.md', "w+") as e: pass
-            except Exception as e:
-                exit(e)
-        else:
-            try:
-                shutil.rmtree(rmtrees[i-1])
-            except FileNotFoundError as e:
-                exit(f"tree: {rmtrees[i-1]} was not found.")
-
-
-
+for i in rmtrees:
+    try:
+        shutil.rmtree(i)
+        if i == 'logs':
+            os.mkdir('logs')
+    except Exception as e:
+        input(e)
+    try:
+        os.remove('setup')
+    except Exception as e:
+        input(e)
 
 a = input("LoonaBilling Update Script \n1. Main Branch \n2. Development Branch\n>>> """)
 if isinstance(a, int) == False:
