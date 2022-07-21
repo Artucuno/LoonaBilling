@@ -9,6 +9,7 @@ google_auth_oauthlib==0.4.4
 hurry==1.1
 hurry.filesize==0.9
 Jinja2==3.0.1
+paypal==1.2.5
 pip==22.1.2
 protobuf==4.21.2
 psutil==5.8.0

@@ -4,10 +4,23 @@
 
 # Development Changelog
 
+## Development TODO
++ Payments
+  + [ ] Create Shopping Cart / Checkout
+  + [ ] Create Customer Transaction Numbers
+  + [ ] Rework Payment Provider System
++ Store
+  + [ ] Make default be the default page (/store)
++ Products
+  + [ ] Import Products
+
 ## LoonaBilling
 + Fixed Branding Issue
 + Added Error Handling for Admin Dashboard stats
 + Added Error Handling for Git Library
+
+## PayPal
++ Added PayPal!
 
 ## Accounts
 + Added Settings Tab

@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
 from core.utils import files
 from core.utils import auth
+from urllib.parse import urljoin
 
 stripe.api_version = '2020-08-27'
 
@@ -91,8 +92,8 @@ def Stripe_startSession():
                 for p in data['Config']:
 
                     ssession = stripe.checkout.Session.create(
-                        success_url=config.domain_url + "success?session_id={CHECKOUT_SESSION_ID}",
-                        cancel_url=config.domain_url + "cancelled",
+                        success_url=config.domain_url + "stripe/success?session_id={CHECKOUT_SESSION_ID}",
+                        cancel_url=config.domain_url + "stripe/cancelled",
                         #payment_method_types=["card"],
                         mode="payment",
                         line_items=[
@@ -108,7 +109,7 @@ def Stripe_startSession():
     except Exception as e:
         return jsonify(error=str(e)), 403
 
-@module.route("/success")
+@module.route("/stripe/success")
 def success():
     a = stripe.checkout.Session.retrieve(request.args['session_id'])
     # Send email after purchase. Check checkout session a['email']
@@ -126,7 +127,7 @@ def success():
         print(e, exc_type, fname, exc_tb.tb_lineno)
     return render_template('core/Stripe/paymentSucess.html', businessName=files.getBranding()[0])
 
-@module.route("/cancelled")
+@module.route("/stripe/cancelled")
 def cancelled():
     return render_template('core/Stripe/paymentCancelled.html', businessName=files.getBranding()[0])
 import sys
