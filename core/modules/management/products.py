@@ -98,7 +98,8 @@ def manageProducts():
                 print(f'[Payments] Unable to get products for {mods[f]}')
         return render_template('core/LoonaProducts/adminManageProducts.html', prods=prods)
     except Exception as e:
-        return str(e)
+        print(e)
+        return 'Unable to load'
 
 @module.route('/admin/{}/createProduct'.format(module.name), methods=['GET', 'POST'])
 @hauth.login_required
