@@ -20,8 +20,9 @@ for i in rmtrees:
         input(e)
 
 a = input("LoonaBilling Update Script \n1. Main Branch \n2. Development Branch\n>>> """)
-if isinstance(a, int) == False:
+if isinstance(a, int) == True:
     raise TypeError
+
 if a == '1':
     os.system('git checkout main')
 elif a == '2':
