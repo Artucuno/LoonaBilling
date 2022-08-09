@@ -50,6 +50,7 @@ def checks():
 checks()
 
 def getItem(category, item):
+    item = secure_filename(item)
     with open(f'products/{category}/{item}.json') as of:
         data = json.load(of)
         return data['Config'][0]
@@ -60,6 +61,7 @@ def parsePrice(price):
     return ''.join(prc)
 
 def getCart(token):
+    token = secure_filename(token)
     if os.path.isfile(f'data/cart/{token}'):
         with open(f'data/cart/{token}') as of:
             data = json.load(of)
