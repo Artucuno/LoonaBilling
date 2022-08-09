@@ -341,6 +341,10 @@ def adminFilemanagerEdit():
     else:
         return render_template('error.html', businessName=files.getBranding()[0], msg='File does not exist!')
 
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html', businessName=files.getBranding()[0]), 404

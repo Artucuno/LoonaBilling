@@ -172,13 +172,20 @@ div.content {
 {% for f in items %}
 
   <div class="card">
-    {% if f[5] != None %}
-    <img src="/{{ f[5] }}" alt="{{ f[0] }}" style="width:100%">
-    {% endif %}
+    <img src="/{{ f[5] or "static/logo.png" }}" alt="{{ f[0] }}" style="width:100%">
     <h1>{{ f[0] }}</h1>
-    <p class="price">${{ f[1] }}</p>
+    <p class="price">${{ f[1] }} <small>{{ f[6] }}</small>{% if f[4] == 'subscription' %} <small>/mth</small>{% endif %}</p>
     <p>{{ f[2] }}</p>
-    <a href='/{{ f[4] }}/startSession?category={{ category }}&item={{ f[3] }}'><button>Buy now</button></a>
+    {% if f[4] == 'payment' %}
+    <form method="POST">
+      <button type="submit" name='addcart-{{ category }}-{{ f[3] }}'>Add to cart <i class="fa-solid fa-cart-shopping"></i></button>
+      <button type="submit" name='buynow-{{ category }}-{{ f[3] }}'>Buy Now <i class="fa-solid fa-credit-card"></i></button>
+    </form>
+    <!--<a href='/Stripe/payment?category={{ category }}&item={{ f[3] }}&type=buy&mode=payment'><button>Buy now</button></a>-->
+    {% elif f[4] == 'subscription' %}
+    <a href='/Stripe/payment?category={{ category }}&item={{ f[3] }}&type=buy&mode=subscription'><button>Subscribe <i class="fa-solid fa-arrow-rotate-left"></i></button></a>
+    {% else %}
+    {% endif %}
   </div>
 {% endfor %}
 </div>

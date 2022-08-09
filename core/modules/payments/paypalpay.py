@@ -1,3 +1,4 @@
+
 from flask import Blueprint, render_template, abort
 from flask import *
 from jinja2 import TemplateNotFound
@@ -15,6 +16,7 @@ module = Blueprint('PayPal', __name__)
 module.hasAdminPage = True
 module.moduleDescription = ''
 module.version = '1.0'
+module.supportedMethods = ['payment']
 
 # https://developer.paypal.com/developer/applications
 # https://developer.paypal.com/developer/accounts

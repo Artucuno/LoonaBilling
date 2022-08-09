@@ -24,6 +24,14 @@ def gen2FA(data):
         json.dump(data, of)
     return a
 
+def genKey(folder):
+    a = ''
+    for f in range(random.randint(10,30)):
+        a += random.choice(string.ascii_letters)
+    if a in os.listdir(folder):
+        return genKey()
+    return a
+
 def getUser(id):
     try:
         with open(f'data/user/{id}/config.json') as of:
@@ -39,7 +47,7 @@ def login_is_required(function):
         else:
             if isAuth(session['user']):
                 if not isSuspended(json.loads(session['user'])['Config'][0]['email']):
-                    return function()
+                    return function(*args, **kwargs)
                 else:
                     return redirect(url_for('Accounts.suspended'))
             else:

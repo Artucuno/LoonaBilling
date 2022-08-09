@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{ businessName }} - Checkout</title>
+<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+<link rel="stylesheet" href="/static/fontawesome/css/brands.css">
+{% include 'divs/theme.html' %}
+</head>
+<body>
+{% include 'divs/navbar.html' %}
+<div style="padding-left:16px">
+  <center>
+    <h2>Checkout <i class="fa-solid fa-credit-card"></i></h2>
+    <p>${{ prc }}</p>
+    {% for f in paypros %}
+    <form method="POST">
+      <button style="font-size: 15px;" type="submit" name='payment-{{ f }}'>Pay with {{ f }} <i class="fa-brands fa-cc-{{ f|lower }}"></i></button>
+    </form>
+    {% endfor %}
+    <p>
+  </center>
+</div>
+
+</body>
+{% include 'divs/footer.html' %}
+</html>

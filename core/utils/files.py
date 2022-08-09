@@ -1,6 +1,15 @@
 import json
 import sys, os
 from hurry.filesize import size
+import types
+from inspect import getmembers, isfunction
+
+def getFuncts(fname):
+    methods = []
+    for f in [a for a in getmembers(fname) if isfunction(a[1])]:
+        methods += [{'args': (f[0], f[1].__code__.co_varnames)}]
+    return methods
+    #return [getattr(fname, a) for a in dir(fname) if isinstance(getattr(fname, a), types.FunctionType)]
 
 def updateJSON(file, arg, content):
     try:

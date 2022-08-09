@@ -21,6 +21,7 @@ from pip._vendor import cachecontrol
 import google.auth.transport.requests
 
 from requests_oauthlib import OAuth2Session
+from requests_oauthlib.compliance_fixes import facebook_compliance_fix
 
 # OTP Libraries
 import pyotp
@@ -49,6 +50,12 @@ module.config['GITHUB_CLIENT_SECRET'] = ''
 module.config['GITHUB_API_BASE_URL'] = 'https://github.com/login/oauth/authorize'
 module.config['GITHUB_TOKEN_URL'] = 'https://github.com/login/oauth/access_token'
 module.config['GITHUB_REQUESTED_SCOPES'] = ['user']
+
+module.config['FACEBOOK_CLIENT_ID'] = ''
+module.config['FACEBOOK_CLIENT_SECRET'] = ''
+module.config['FACEBOOK_API_BASE_URL'] = 'https://www.facebook.com/dialog/oauth'
+module.config['FACEBOOK_TOKEN_URL'] = 'https://graph.facebook.com/oauth/access_token'
+module.config['FACEBOOK_REQUESTED_SCOPES'] = ['email']
 
 def oauth2_token_updater(token):
 	session['oauth2_token'] = token
@@ -80,6 +87,21 @@ def github_oauth2_session(token=None, state=None, scope=None):
 		},
 		auto_refresh_url=module.config['GITHUB_TOKEN_URL'],
 		token_updater=oauth2_token_updater)
+
+def facebook_oauth2_session(token=None, state=None, scope=None):
+	fb = OAuth2Session(
+		client_id=module.config['FACEBOOK_CLIENT_ID'],
+		token=token,
+		state=state,
+		scope=module.config['FACEBOOK_REQUESTED_SCOPES'],
+		redirect_uri=url_for('.authorizeface', _external=True),
+		#auto_refresh_kwargs = {
+		#	'client_id': module.config['FACEBOOK_CLIENT_ID'],
+		#	'client_secret': module.config['FACEBOOK_CLIENT_SECRET'],
+		#},
+		auto_refresh_url=module.config['FACEBOOK_TOKEN_URL'],
+		token_updater=oauth2_token_updater)
+	return facebook_compliance_fix(fb)
 
 def discord_get_user():
 	discord = oauth2_session(token=session.get('oauth2_token'))
@@ -194,9 +216,13 @@ def checks():
 			try:
 				os.remove(f'data/states/{f}')
 			except:
-				print('[Accounts] Unable to remove {f} state')
+				print(f'[{module.name}] Unable to remove {f} state')
 	except:
 		print()
+	for f in os.listdir('data/user'):
+		cf(f'data/user/{f}/payments')
+		cf(f'data/user/{f}/sessions')
+		cf(f'data/user/{f}/paydata')
 
 @module.route('/login', methods=['GET', 'POST'])
 def login():
@@ -217,8 +243,16 @@ def login():
 				of.write('login')
 			#print(state)
 			return redirect(auth_url)
+		if 'login-facebook' in request.form:
+			facebook = facebook_oauth2_session(module.config['FACEBOOK_CLIENT_ID'])
+			authorization_url, state = facebook.authorization_url(module.config['FACEBOOK_API_BASE_URL'])
+			session['oauth2_state'] = state
+			session["state"] = state
+			with open(f'data/states/{state}', 'w+') as of:
+				of.write('login')
+			return redirect(authorization_url)
 		if 'login-github' in request.form:
-			github = OAuth2Session(module.config['GITHUB_CLIENT_ID'], redirect_uri=url_for('.authorizegit', _external=True))
+			github = github_oauth2_session(module.config['GITHUB_CLIENT_ID'])
 			authorization_url, state = github.authorization_url(module.config['GITHUB_API_BASE_URL'])
 			session['state'] = state
 			session['oauth2_state'] = state
@@ -292,8 +326,16 @@ def register():
 				of.write('register')
 			#print(state)
 			return redirect(auth_url)
+		if 'signup-facebook' in request.form:
+			facebook = facebook_oauth2_session(module.config['FACEBOOK_CLIENT_ID'])
+			authorization_url, state = facebook.authorization_url(module.config['FACEBOOK_API_BASE_URL'])
+			session['oauth2_state'] = state
+			session["state"] = state
+			with open(f'data/states/{state}', 'w+') as of:
+				of.write('register')
+			return redirect(authorization_url)
 		if 'signup-github' in request.form:
-			github = OAuth2Session(module.config['GITHUB_CLIENT_ID'], redirect_uri=url_for('.authorizegit', _external=True))
+			github = github_oauth2_session(module.config['GITHUB_CLIENT_ID'], redirect_uri=url_for('.authorizegit', _external=True))
 			authorization_url, state = github.authorization_url(module.config['GITHUB_API_BASE_URL'])
 			session['state'] = state
 			session['oauth2_state'] = state
@@ -311,7 +353,10 @@ def register():
 		if auth.isEmail(email):
 			return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
 		userID = auth.getUserCount()
-		cf('data/user/{}'.format(userID))
+		cf(f'data/user/{userID}')
+		cf(f'data/user/{userID}/payments')
+		cf(f'data/user/{userID}/sessions')
+		cf(f'data/user/{userID}/paydata')
 		data = {}
 		data['Config'] = []
 		data['Config'].append({
@@ -344,6 +389,88 @@ def logout():
 	except Exception as e:
 		print(e)
 	return redirect(url_for('Accounts.login'))
+
+@module.route('/callback/facebook')
+def authorizeface():
+	if request.values.get('error'):
+		error = request.values['error']
+		print(error)
+		return redirect(url_for('Accounts.login'))
+
+	facebook = facebook_oauth2_session(state=session['oauth2_state'])
+	token = facebook.fetch_token(
+	module.config['FACEBOOK_TOKEN_URL'],
+	client_secret=module.config['FACEBOOK_CLIENT_SECRET'],
+	authorization_response=request.url,
+	code=request.args['code'])
+
+	session['oauth2_token'] = token
+	#r = facebook.get('https://graph.facebook.com/me')
+	#print(r.content)
+	r = facebook.get('https://graph.facebook.com/me?fields=email')
+	uemail = json.loads(r.content.decode())['email']
+	#r = facebook.get('https://graph.facebook.com/me/picture')
+	#print(r.content)
+	try:
+		with open(f'data/states/{session["state"]}', 'r') as of:
+			st = of.read().strip()
+			#print(st == 'register')
+			#print(st == 'login')
+			of.close()
+			os.remove(f'data/states/{session["state"]}')
+
+			if st == 'register':
+				if auth.isEmail(uemail):
+					return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
+				userID = auth.getUserCount()
+				cf(f'data/user/{userID}')
+				cf(f'data/user/{userID}/payments')
+				cf(f'data/user/{userID}/sessions')
+				cf(f'data/user/{userID}/paydata')
+				data = {}
+				data['Config'] = []
+				data['Config'].append({
+				'email': uemail,
+				'password': str(auth.encKey(uemail).decode()),
+				'external': True,
+				'ID': userID,
+				'secret': str(pyotp.random_base32()),
+				'2fa': False,
+				'suspended': {'isSuspended': False, 'reason': 'No reason'},
+				'type': 'user',
+				'args': {'type': 'facebook'}
+				})
+				with open('data/user/{}/config.json'.format(userID), 'w+') as of:
+					json.dump(data, of)
+				session['user'] = json.dumps(data)
+				return redirect(url_for('Accounts.dashboard'))
+			if st == 'login':
+				#print('login')
+				if auth.isEmail(uemail):
+					#return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
+					data = {}
+					data['Config'] = []
+					data['Config'].append({
+					'email': uemail,
+					'password': str(auth.encKey(uemail).decode()),
+					'external': True,
+					'ID': auth.getID(uemail)
+					})
+					userlog = auth.logAuth(data)
+					#print(user)
+					if userlog != False:
+						session['user'] = json.dumps(userlog)
+						return redirect(url_for('Accounts.dashboard'))
+					else:
+						return redirect(url_for('Accounts.login'))
+				else:
+					return redirect(url_for('Accounts.register'))
+	except Exception as e:
+		exc_type, exc_obj, exc_tb = sys.exc_info()
+		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+		print(e, exc_type, fname, exc_tb.tb_lineno)
+
+	return 'Error'
 
 @module.route('/callback/github')
 def authorizegit():
@@ -382,7 +509,10 @@ def authorizegit():
 				if auth.isEmail(uemail):
 					return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
 				userID = auth.getUserCount()
-				cf('data/user/{}'.format(userID))
+				cf(f'data/user/{userID}')
+				cf(f'data/user/{userID}/payments')
+				cf(f'data/user/{userID}/sessions')
+				cf(f'data/user/{userID}/paydata')
 				data = {}
 				data['Config'] = []
 				data['Config'].append({
@@ -458,12 +588,15 @@ def authorizedis():
 				if auth.isEmail(user['email']):
 					return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
 				userID = auth.getUserCount()
-				cf('data/user/{}'.format(userID))
+				cf(f'data/user/{userID}')
+				cf(f'data/user/{userID}/payments')
+				cf(f'data/user/{userID}/sessions')
+				cf(f'data/user/{userID}/paydata')
 				data = {}
 				data['Config'] = []
 				data['Config'].append({
 				'email': user['email'],
-				'password': str(auth.encKey(user['email']).decode()),
+				'password': str(auth.encKey(str(user['id'])).decode()),
 				'external': True,
 				'ID': userID,
 				'secret': str(pyotp.random_base32()),
@@ -484,7 +617,7 @@ def authorizedis():
 					data['Config'] = []
 					data['Config'].append({
 					'email': user['email'],
-					'password': str(auth.encKey(user['email']).decode()),
+					'password': str(auth.encKey(str(user['id'])).decode()),
 					'external': True,
 					'ID': auth.getID(user['email'])
 					})
@@ -532,7 +665,10 @@ def callback_google():
 				if auth.isEmail(id_info['email']):
 					return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
 				userID = auth.getUserCount()
-				cf('data/user/{}'.format(userID))
+				cf(f'data/user/{userID}')
+				cf(f'data/user/{userID}/payments')
+				cf(f'data/user/{userID}/sessions')
+				cf(f'data/user/{userID}/paydata')
 				data = {}
 				data['Config'] = []
 				data['Config'].append({
@@ -591,6 +727,25 @@ def dashboard():
 		print(e, exc_type, fname, exc_tb.tb_lineno)
 	return redirect(url_for('Accounts.login'))
 
+def getPayments(uid):
+	data = {}
+	data['Config'] = []
+	pi = []
+	for f in os.listdir(f'data/user/{uid}/payments'):
+		prods = []
+		for ff in os.listdir(f'data/user/{uid}/payments/{f}/products'):
+			try:
+				with open(f'data/user/{uid}/payments/{f}/products/{ff}') as of:
+					data = json.load(of)
+					prods += [data]
+			except Exception as e:
+				exc_type, exc_obj, exc_tb = sys.exc_info()
+				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+				print(e, exc_type, fname, exc_tb.tb_lineno)
+		pi += [{'id': f, 'prods': prods}]
+	print(pi)
+	return pi
+
 @module.route('/dashboard/payments', methods=['GET', 'POST'])
 @auth.login_is_required
 def dashboardPayments():
@@ -600,7 +755,7 @@ def dashboardPayments():
 		if user != False:
 			for p in user['Config']:
 				#print('a')
-				return render_template('core/Accounts/dashboardPayments.html', businessName=files.getBranding()[0], email=p['email'])
+				return render_template('core/Accounts/dashboardPayments.html', payments=getPayments(p['ID']), businessName=files.getBranding()[0], email=p['email'])
 	except Exception as e:
 		exc_type, exc_obj, exc_tb = sys.exc_info()
 		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
