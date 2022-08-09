@@ -26,7 +26,7 @@ module.moduleDescription = 'Stripe Module'
 module.version = '2.0'
 module.supportedMethods = ['payment', 'subscription']
 
-stripe.api_key = 'sk_test_51HMpbpEVF5vnLBwDOM3OyDMhEOeitf6CbDwppzrkVVqhSglq8IXREP8U6DpdoaQuwtrdNfMQvaMT0LcszGngRUQX00jwakVwts'
+stripe.api_key = 'sk_test_51HMpbpEVF5vnLBwDxNNzXC2QQwAiGcJ60fnGC6MIeR9VWcrC2Uzr5sTmUzHGPqNMfnYDD35IXsXWCO9pZRKkbiBI00Gk3nfJar'
 
 def cf(folder):
     try:
@@ -50,6 +50,7 @@ def checks():
 checks()
 
 def getItem(category, item):
+    category = secure_filename(item)
     item = secure_filename(item)
     with open(f'products/{category}/{item}.json') as of:
         data = json.load(of)
