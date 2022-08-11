@@ -43,6 +43,7 @@ except:
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
+from core.utils import auth
 from core.utils import files
 from core.utils import network
 import urllib.parse
@@ -58,6 +59,7 @@ try:
     app.version = open('version', 'r').read().strip()
 except:
     app.version = '?'
+app.upver = app.version
 app.hasUpdate = False
 app.secret_key = str(getnode()).encode()
 
@@ -113,15 +115,17 @@ def checks():
         x = requests.get('https://raw.githubusercontent.com/Loona-cc/LoonaBilling/main/version', timeout=3)
         if x.text.strip() != app.version:
             app.hasUpdate = True
+            app.upver = x.text.strip()
         else:
             print('You are on the latest version!')
+            app.upver = app.version
     except Exception as e:
         print('Unable to get latest version: {}'.format(e))
     if not os.path.isfile('setup'):
         tprint("Setup")
         print("Welcome to LoonaBilling! To get started, please enter an admin password to use for login.")
         adPass = getpass.getpass('Enter new admin password >>> ')
-        key = encKey(adPass)
+        key = auth.encKey(adPass)
         #input(key)
         with open('setup', 'wb') as of:
             of.write(key)
@@ -351,8 +355,8 @@ def page_not_found(e):
     return render_template('404.html', businessName=files.getBranding()[0]), 404
 
 if __name__ == '__main__':
-    app.config['SERVER_NAME'] = config.domain
+    #app.config['SERVER_NAME'] = config.domain
     if app.hasUpdate:
-        print(Fore.GREEN + '[LoonaBilling] ' + Fore.YELLOW + '*** There is a new update! ***' + Style.RESET_ALL)
+        print(Fore.GREEN + '[LoonaBilling] ' + Fore.YELLOW + '*** There is a new update! {} to {} ***'.format(app.version, app.upver) + Style.RESET_ALL)
     print(Fore.GREEN + '[LoonaBilling] ' + Style.RESET_ALL + f'Ready to start on {config.ip}/{config.domain}')
     app.run(host=config.ip, port=config.port, debug=config.debug, ssl_context=config.ssl)

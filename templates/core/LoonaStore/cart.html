@@ -153,7 +153,10 @@ input:focus {
     <div class="shopping-cart">
       <!-- Title -->
       <div class="title">
-        Shopping Cart
+        <form method="POST">
+          Shopping Cart
+          <button name='clear-cart' type="submit"><i class="fa-solid fa-trash"></i></button>
+        </form>
       </div>
       {% for f in session['cart'] %}
       {% set itm = getProduct(f['category'], f['item'])['Config'][0] %}

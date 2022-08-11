@@ -12,11 +12,13 @@
   <center>
     <h2>Checkout <i class="fa-solid fa-credit-card"></i></h2>
     <p>${{ prc }}</p>
-    {% for f in paypros %}
     <form method="POST">
-      <button style="font-size: 15px;" type="submit" name='payment-{{ f }}'>Pay with {{ f }} <i class="fa-brands fa-cc-{{ f|lower }}"></i></button>
-    </form>
+    {% for f in paypros %}
+    {% if mode in f['methods'] %}
+      <button style="font-size: 15px;" type="submit" name='payment-{{ f["name"] }}'>Pay with {{ f['name'] }} <i class="fa-brands fa-cc-{{ f['name']|lower }}"></i></button><br>
+    {% endif %}
     {% endfor %}
+    </form>
     <p>
   </center>
 </div>

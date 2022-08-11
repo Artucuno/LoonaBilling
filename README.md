@@ -15,9 +15,13 @@ A WIP Open-source WHMCS alternative.
 - [x] [Stripe](https://stripe.com) Support
   - [x] One-Time Payments
   - [x] Recurring Payments
-  - [ ] Webhook
-- [x] [PayPal](https://paypal.com) Support (WIP)
-  - [x] One-Time Payments
+  - [x] Webhook (WIP)
+    - [x] One-Time Payments
+    - [x] Recurring Payments (WIP)
+      - [x] On Purchase
+      - [ ] Recurring (Soon)
+- [x] [PayPal](https://paypal.com) Support (LOOKING FOR CONTRIBUTORS)
+  - [x] One-Time Payments (WIP)
   - [ ] Recurring Payments
   - [ ] Webhook
 - [x] [hCaptcha](https://www.hcaptcha.com/)
@@ -27,7 +31,7 @@ A WIP Open-source WHMCS alternative.
 - [x] Product Management
   - [ ] Stripe Products Integration
 - [x] Storefront
-- [x] Shopping Cart (WIP)
+- [x] Shopping Cart
 - [x] Email Sending (WIP)
   - [ ] Purchase Messages
   - [ ] Contact Messages
@@ -35,9 +39,11 @@ A WIP Open-source WHMCS alternative.
 - [x] Website Search
 - [x] User Management
   - [x] Two Factor Authentication
-    - [x] Google Authenticator
+    - [x] [Google Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2)
     - [ ] SMS Authentication (Soon)
       - [ ] [TextMagic](https://textmagic.com)
+      - [ ] [AndroidSMSServer](https://github.com/umer0586/AndroidSMSServer)
+    - [ ] Email 2FA (Soon)
   - [x] Basic Accounts
   - [ ] Affiliate Accounts
   - [ ] Reseller Accounts
@@ -46,6 +52,8 @@ A WIP Open-source WHMCS alternative.
   - [x] Google Login
   - [x] Discord Login
   - [x] Github Login
+  - [x] Facebook Login
+  - [ ] Microsoft Login (WIP)
 
 # Contribution
 All contributions are welcome! Just create a fork and open up a Pull Request :)
@@ -59,4 +67,4 @@ All contributions are welcome! Just create a fork and open up a Pull Request :)
   - [ ] Account Management
   - [ ] Product Management
 
-- [ ] Documented Code & Comments
+- [ ] Documented Code & Comments (Soon)

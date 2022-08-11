@@ -41,7 +41,7 @@ for path, dirs, file in os.walk("core/modules/payments", topdown=False):
                 f, filename, descr = imp.find_module(name, [path])
                 mods[fname] = imp.load_module(name, f, filename, descr)
                 #print(getattr(mods[fname], 'module').name)
-                paypro += [getattr(mods[fname], 'module')]
+                paypro += [{'name': getattr(mods[fname], 'module').name, 'methods': getattr(mods[fname], 'module').supportedMethods}]
                 print(Fore.GREEN + f'[{module.name}] ' + Style.RESET_ALL + 'Imported', mods[fname].module.name)
                 #globals()
         except Exception as e:
@@ -63,6 +63,15 @@ def parsePrice(price):
     prc.insert(-2, '.')
     return ''.join(prc)
 
+def removeType(cart, type):
+    for f in enumerate(cart):
+        print(f)
+        a = getProduct(f[1]['category'], f[1]['item'])['Config'][0]
+        if a['type'] == type:
+            del cart[f[0]]
+            return removeType(cart, type)
+    return cart
+
 @module.route('/store', methods=['GET', 'POST'])
 def store():
     if not 'cart' in session:
@@ -82,7 +91,11 @@ def store():
                 return redirect(url_for('LoonaStore.store'))
             if x[0] == 'addcart':
                 session['cart'] += [{'category': x[1], 'item': x[2]}]
+                session['cart'] = removeType(session['cart'], 'subscription')
             if x[0] == 'buynow':
+                session['cart'] = [{'category': x[1], 'item': x[2]}]
+                return redirect(url_for('LoonaStore.checkout'))
+            if x[0] == 'buysub':
                 session['cart'] = [{'category': x[1], 'item': x[2]}]
                 return redirect(url_for('LoonaStore.checkout'))
     categories = []
@@ -122,8 +135,17 @@ def cart():
                 del a[int(x[1])-1]
                 session['cart'] = a
                 print(session['cart'])
+            if x[0] == 'clear':
+                session['cart'] = []
         return redirect(url_for('LoonaStore.cart'))
     return render_template('core/LoonaStore/cart.html', parsePrice=parsePrice, getProduct=getProduct, businessName=files.getBranding()[0])
+
+def getCartType(cart):
+    for f in cart:
+        a = getProduct(f['category'], f['item'])['Config'][0]
+        if a['type'] == 'subscription':
+            return 'subscription'
+    return 'payment'
 
 @module.route('/checkout', methods=['GET', 'POST'])
 def checkout():
@@ -136,9 +158,10 @@ def checkout():
         a = getProduct(f['category'], f['item'])['Config'][0]
         prc += int(a['price'])
     pros = []
-    for q in mods:
-        pros += [getattr(mods[q], 'module').name]
+    for q in paypro:
+        pros += [q['name']]
     print(pros)
+    mode = getCartType(session['cart'])
     if request.method == 'POST':
         print(request.form)
         for qp in request.form:
@@ -157,12 +180,13 @@ def checkout():
                     'price': prc,
                     'cart': session['cart'],
                     'token': carttoken,
+                    'mode': mode
                     })
                     with open('data/cart/{}'.format(carttoken), 'w+') as of:
                         json.dump(data, of)
-                    return redirect(url_for(f'{x[1]}.payment', cartid=carttoken, type='cart'))
+                    return redirect(url_for(f'{x[1]}.payment', cartid=carttoken, type='cart', mode=mode))
                 else:
                     return 'invalid provider'
             else:
                 return 'p'
-    return render_template('core/LoonaStore/checkout.html', paypros=pros, prc=parsePrice(str(prc)), businessName=files.getBranding()[0])
+    return render_template('core/LoonaStore/checkout.html', mode=mode, paypros=paypro, prc=parsePrice(str(prc)), businessName=files.getBranding()[0])

@@ -6,24 +6,8 @@
 Sorry for the long wait for another update, had some problems with Stripe and the API.
 Alot of the updates aren't documented
 
-## Development TODO
-+ Main
-  + [ ] Backup System
-    + [ ] Move Servers Easily
-    + [ ] Online/Remote Backups
-+ Payments
-  + [x] Create Shopping Cart / Checkout (WIP)
-  + [x] Create Customer Transaction Numbers (WIP) (Cart IDs)
-  + [ ] Rework Payment Provider System
-    + [x] Stripe (WIP)
-    + [ ] PayPal (TODO)
-+ Store
-  + [ ] Make default be the default page (/store)
-+ Products
-  + [ ] Import Products from Payment Providers
-
 ## LoonaBilling
-+ Changed encryption salt to ... instead of Mac Address (TODO)
++ Changed encryption salt to Fernet key instead of Mac Address
   + Reason: Mac Address changes on different networks and will be a pain if servers change
 + Fixed Branding Issue
 + Added Error Handling for Admin Dashboard stats
@@ -33,10 +17,15 @@ Alot of the updates aren't documented
 + Rewrote Stripe Module
 + Added Automation
   + [x] Payments
-  + [ ] Subscriptions (TODO)
+  + [x] Subscriptions (WIP)
 
 ## PayPal
 + Added PayPal (Needs to be reworked)
+  + Looking for contributions
+
+## Search
++ Fixed Links
++ Added more banned words
 
 ## Accounts
 + Added Settings Tab
@@ -57,6 +46,8 @@ Alot of the updates aren't documented
 + Added Facebook Login
   + Added Enable / Disable (TODO)
   + Added Setup Guide (TODO)
++ Fixed hCaptcha (Changed hcaptcha.verify to module.hcaptcha.verify)
++ Added Microsoft Login (Pain) (WIP)
 
 ## Products
 + Added Product importing from Payment Providers
@@ -75,3 +66,19 @@ Alot of the updates aren't documented
 
 # Other
 + Join our [Discord](https://loona.cc)!
+
+## Development TODO
++ Main
+  + [ ] Backup System
+    + [ ] Move Servers Easily
+    + [ ] Online/Remote Backups
++ Payments
+  + [x] Create Shopping Cart / Checkout (WIP)
+  + [x] Create Customer Transaction Numbers (WIP) (Cart IDs)
+  + [x] Rework Payment Provider System
+    + [x] Stripe (WIP)
+    + [x] PayPal (WIP) (NEED CONTRIBUTORS)
++ Store
+  + [ ] Make default be the default page (/store)
++ Products
+  + [ ] Import Products from Payment Providers

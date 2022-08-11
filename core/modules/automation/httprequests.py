@@ -32,5 +32,3 @@ def sendRequest(dta):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         print(e, exc_type, fname, exc_tb.tb_lineno)
         return {'success': False, 'error': e}
-
-# Soon

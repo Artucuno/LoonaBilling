@@ -141,9 +141,19 @@ def isAuth(sess):
 def getUserCount():
     return len(os.listdir('data/user'))
 
+def setupKey():
+    if not os.path.isfile('setup.key'):
+        with open('setup.key', 'wb') as of:
+            ky = Fernet.generate_key()
+            of.write(ky)
+            return ky
+    else:
+        with open('setup.key', 'rb') as of:
+            return of.read()
+
 def encKey(adPass):
     password = adPass.encode()
-    salt = str(getnode()).encode()
+    salt = str(setupKey()).encode()
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,

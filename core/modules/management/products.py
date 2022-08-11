@@ -28,6 +28,7 @@ def cf(folder):
 
 mods = {}
 paypro = []
+prodpro = []
 for path, dirs, files in os.walk("core/modules/payments", topdown=False):
     for fname in files:
         try:
@@ -37,6 +38,7 @@ for path, dirs, files in os.walk("core/modules/payments", topdown=False):
                 mods[fname] = imp.load_module(name, f, filename, descr)
                 #print(getattr(mods[fname], 'module').name)
                 paypro += [getattr(mods[fname], 'module')]
+                prodpro += [(getattr(mods[fname], 'module'), fname)]
                 print(Fore.GREEN + f'[{module.name}] ' + Style.RESET_ALL + 'Imported', mods[fname].module.name)
                 #globals()
         except Exception as e:
@@ -161,7 +163,6 @@ def createProduct():
             autom = None
             if request.form['automation'] != 'None':
                 autom = request.form['automation']
-
             data = {}
             data['Config'] = []
             data['Config'].append({
@@ -174,8 +175,15 @@ def createProduct():
             'removed': False,
             'currency': request.form['currency'],
             'args': rgs,
-            'type': paytype
+            'type': paytype,
+            'category': secure_filename(request.form['category']),
+            'args': {}
             })
+            for pro in prodpro:
+                if 'createProduct' in pro[0].supportedActions:
+                    a = getattr(mods[pro[1]], 'createProduct')(data)
+                    print(a)
+                    data['Config'][0]['args']['{}'.format(pro[0].name)] = {'prod': a['id'], 'price': a['default_price']}
             with open('products/{}/{}.json'.format(secure_filename(request.form['category']), itemID), 'w+') as of:
                 json.dump(data, of)
             return render_template('core/LoonaProducts/adminCreateProduct.html', payments=paypro, categories=os.listdir('products'), msg=f'Created Product: {request.form["title"]}', businessName=fls.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)

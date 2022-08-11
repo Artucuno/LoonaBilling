@@ -44,6 +44,12 @@ module.config['DISCORD_BASE_AUTH_URL'] = module.config['DISCORD_API_BASE_URL'] +
 module.config['DISCORD_TOKEN_URL'] = module.config['DISCORD_API_BASE_URL'] + '/oauth2/token'
 module.config['DISCORD_REQUESTED_SCOPES'] = ['identify', 'email']
 
+
+module.config['MICROSOFT_CLIENT_ID'] = ''
+module.config['MICROSOFT_CLIENT_SECRET'] = ''
+module.config['MICROSOFT_API_BASE_URL'] = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize'
+module.config['MICROSOFT_TOKEN_URL'] = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
+module.config['MICROSOFT_REQUESTED_SCOPES'] = ['openid', 'email', 'profile', 'User.Read'] # Scopes change randomly
 # Github Login
 module.config['GITHUB_CLIENT_ID'] = ''
 module.config['GITHUB_CLIENT_SECRET'] = ''
@@ -51,6 +57,7 @@ module.config['GITHUB_API_BASE_URL'] = 'https://github.com/login/oauth/authorize
 module.config['GITHUB_TOKEN_URL'] = 'https://github.com/login/oauth/access_token'
 module.config['GITHUB_REQUESTED_SCOPES'] = ['user']
 
+# Facebook Login
 module.config['FACEBOOK_CLIENT_ID'] = ''
 module.config['FACEBOOK_CLIENT_SECRET'] = ''
 module.config['FACEBOOK_API_BASE_URL'] = 'https://www.facebook.com/dialog/oauth'
@@ -86,6 +93,20 @@ def github_oauth2_session(token=None, state=None, scope=None):
 			'client_secret': module.config['GITHUB_CLIENT_SECRET'],
 		},
 		auto_refresh_url=module.config['GITHUB_TOKEN_URL'],
+		token_updater=oauth2_token_updater)
+
+def microsoft_oauth2_session(token=None, state=None, scope=None):
+	return OAuth2Session(
+		client_id=module.config['MICROSOFT_CLIENT_ID'],
+		token=token,
+		state=state,
+		scope=module.config['MICROSOFT_REQUESTED_SCOPES'],
+		redirect_uri=url_for('.authorizemicro', _external=True),
+		auto_refresh_kwargs = {
+			'client_id': module.config['MICROSOFT_CLIENT_ID'],
+			'client_secret': module.config['MICROSOFT_CLIENT_SECRET'],
+		},
+		auto_refresh_url=module.config['MICROSOFT_TOKEN_URL'],
 		token_updater=oauth2_token_updater)
 
 def facebook_oauth2_session(token=None, state=None, scope=None):
@@ -167,6 +188,16 @@ def checks():
 		})
 		with open('configs/accounts/github.json', 'w+') as of:
 			json.dump(data, of)
+	if not os.path.isfile('configs/accounts/facebook.json'):
+		data = {}
+		data['Config'] = []
+		data['Config'].append({
+		'enabled': False,
+		'client_id': '',
+		'client_secret': ''
+		})
+		with open('configs/accounts/facebook.json', 'w+') as of:
+			json.dump(data, of)
 	if not os.path.isfile('configs/accounts/hCaptcha.json'):
 		data = {}
 		data['Config'] = []
@@ -190,6 +221,16 @@ def checks():
 	try:
 		module.config['DISCORD_CLIENT_ID'] = files.readJSONVar('configs/accounts/discord.json', 'client_id')
 		module.config['DISCORD_CLIENT_SECRET'] = files.readJSONVar('configs/accounts/discord.json', 'client_secret')
+	except Exception as e:
+		print('[Accounts] Unable to load Discord Settings')
+	try:
+		module.config['GITHUB_CLIENT_ID'] = files.readJSONVar('configs/accounts/github.json', 'client_id')
+		module.config['GITHUB_CLIENT_SECRET'] = files.readJSONVar('configs/accounts/github.json', 'client_secret')
+	except Exception as e:
+		print('[Accounts] Unable to load Github Settings')
+	try:
+		module.config['FACEBOOK_CLIENT_ID'] = files.readJSONVar('configs/accounts/facebook.json', 'client_id')
+		module.config['FACEBOOK_CLIENT_SECRET'] = files.readJSONVar('configs/accounts/facebook.json', 'client_secret')
 	except Exception as e:
 		print('[Accounts] Unable to load Discord Settings')
 	try:
@@ -251,6 +292,14 @@ def login():
 			with open(f'data/states/{state}', 'w+') as of:
 				of.write('login')
 			return redirect(authorization_url)
+		if 'login-microsoft' in request.form:
+			microsoft = microsoft_oauth2_session(module.config['MICROSOFT_CLIENT_ID'])
+			authorization_url, state = microsoft.authorization_url(module.config['MICROSOFT_API_BASE_URL'])
+			session['oauth2_state'] = state
+			session["state"] = state
+			with open(f'data/states/{state}', 'w+') as of:
+				of.write('login')
+			return redirect(authorization_url)
 		if 'login-github' in request.form:
 			github = github_oauth2_session(module.config['GITHUB_CLIENT_ID'])
 			authorization_url, state = github.authorization_url(module.config['GITHUB_API_BASE_URL'])
@@ -265,7 +314,7 @@ def login():
 		except:
 			return render_template('core/Accounts/login.html', msg="Missing an argument", businessName=files.getBranding()[0])
 		if module.config['HCAPTCHA_ENABLED']:
-			if not hcaptcha.verify():
+			if not module.hcaptcha.verify():
 				return render_template('core/Accounts/login.html', msg="Please retry the Captcha", businessName=files.getBranding()[0])
 		#if auth.isEmail(email):
 		#	return render_template('core/Accounts/login.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
@@ -288,7 +337,7 @@ def login():
 		else:
 			return render_template('core/Accounts/login.html', msg='Incorrect email or password', businessName=files.getBranding()[0])
 
-	return render_template('core/Accounts/login.html', githubLogin=files.readJSONVar('configs/accounts/github.json', 'enabled'), googleLogin=files.readJSONVar('configs/accounts/google.json', 'enabled'), discordLogin=files.readJSONVar('configs/accounts/discord.json', 'enabled'), businessName=files.getBranding()[0])
+	return render_template('core/Accounts/login.html', facebookLogin=files.readJSONVar('configs/accounts/facebook.json', 'enabled'), githubLogin=files.readJSONVar('configs/accounts/github.json', 'enabled'), googleLogin=files.readJSONVar('configs/accounts/google.json', 'enabled'), discordLogin=files.readJSONVar('configs/accounts/discord.json', 'enabled'), businessName=files.getBranding()[0])
 
 @module.route('/2fa', methods=['GET', 'POST'])
 def twofa():
@@ -335,7 +384,7 @@ def register():
 				of.write('register')
 			return redirect(authorization_url)
 		if 'signup-github' in request.form:
-			github = github_oauth2_session(module.config['GITHUB_CLIENT_ID'], redirect_uri=url_for('.authorizegit', _external=True))
+			github = github_oauth2_session(module.config['GITHUB_CLIENT_ID'])
 			authorization_url, state = github.authorization_url(module.config['GITHUB_API_BASE_URL'])
 			session['state'] = state
 			session['oauth2_state'] = state
@@ -348,7 +397,7 @@ def register():
 		except:
 			return render_template('core/Accounts/register.html', msg="Missing an argument", businessName=files.getBranding()[0])
 		if module.config['HCAPTCHA_ENABLED']:
-			if not hcaptcha.verify():
+			if not module.hcaptcha.verify():
 				return render_template('core/Accounts/register.html', msg="Please retry the Captcha", businessName=files.getBranding()[0])
 		if auth.isEmail(email):
 			return render_template('core/Accounts/register.html', msg="Account already exists with this email", businessName=files.getBranding()[0])
@@ -375,7 +424,7 @@ def register():
 		session['user'] = json.dumps(data)
 
 		return redirect(url_for('Accounts.dashboard'))
-	return render_template('core/Accounts/register.html', githubLogin=files.readJSONVar('configs/accounts/github.json', 'enabled'), googleLogin=files.readJSONVar('configs/accounts/google.json', 'enabled'), discordLogin=files.readJSONVar('configs/accounts/discord.json', 'enabled'), businessName=files.getBranding()[0])
+	return render_template('core/Accounts/register.html', facebookLogin=files.readJSONVar('configs/accounts/facebook.json', 'enabled'), githubLogin=files.readJSONVar('configs/accounts/github.json', 'enabled'), googleLogin=files.readJSONVar('configs/accounts/google.json', 'enabled'), discordLogin=files.readJSONVar('configs/accounts/discord.json', 'enabled'), businessName=files.getBranding()[0])
 
 @module.route('/suspended')
 def suspended():
@@ -389,6 +438,27 @@ def logout():
 	except Exception as e:
 		print(e)
 	return redirect(url_for('Accounts.login'))
+
+@module.route('/callback/microsoft')
+def authorizemicro():
+	if request.values.get('error'):
+		error = request.values['error']
+		print(error)
+		return redirect(url_for('Accounts.login'))
+
+	microsoft = microsoft_oauth2_session(state=session['oauth2_state'])
+	token = microsoft.fetch_token(
+	module.config['MICROSOFT_TOKEN_URL'],
+	client_secret=module.config['MICROSOFT_CLIENT_SECRET'],
+	authorization_response=request.url,
+	code=request.args['code'])
+
+	session['oauth2_token'] = token
+	r = microsoft.get('https://graph.microsoft.com/v1.0/me').json()
+	print(r)
+	r = microsoft.get('https://graph.microsoft.com/v1.0/me/email').json()
+	print(r)
+	return 'yay'
 
 @module.route('/callback/facebook')
 def authorizeface():
@@ -850,7 +920,7 @@ def adminManageDiscord():
 @hauth.login_required
 def adminManageGithub():
 	if request.method == 'POST':
-		print(request.form)
+		#print(request.form)
 		if 'isEnabled' in request.form:
 			if 'github-enabled' in request.form:
 				files.updateJSON('configs/accounts/github.json', 'enabled', True)
@@ -858,9 +928,29 @@ def adminManageGithub():
 				files.updateJSON('configs/accounts/github.json', 'enabled', False)
 		if 'clientID' in request.form:
 			files.updateJSON('configs/accounts/github.json', 'client_id', request.form['clientID'])
+			module.config['GITHUB_CLIENT_ID'] = request.form['clientID']
 		if 'clientSecret' in request.form:
 			files.updateJSON('configs/accounts/github.json', 'client_secret', request.form['clientSecret'])
+			module.config['GITHUB_CLIENT_SECRET'] = request.form['clientSecret']
 	return render_template('core/Accounts/adminManageGithub.html', githubenabled=files.readJSONVar('configs/accounts/github.json', 'enabled'), businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
+
+@module.route('/admin/{}/manageFacebook'.format(module.name), methods=['GET', 'POST'])
+@hauth.login_required
+def adminManageFacebook():
+	if request.method == 'POST':
+		#print(request.form)
+		if 'isEnabled' in request.form:
+			if 'facebook-enabled' in request.form:
+				files.updateJSON('configs/accounts/facebook.json', 'enabled', True)
+			else:
+				files.updateJSON('configs/accounts/facebook.json', 'enabled', False)
+		if 'clientID' in request.form:
+			files.updateJSON('configs/accounts/facebook.json', 'client_id', request.form['clientID'])
+			module.config['GITHUB_CLIENT_ID'] = request.form['clientID']
+		if 'clientSecret' in request.form:
+			files.updateJSON('configs/accounts/facebook.json', 'client_secret', request.form['clientSecret'])
+			module.config['GITHUB_CLIENT_SECRET'] = request.form['clientSecret']
+	return render_template('core/Accounts/adminManageFacebook.html', facebookenabled=files.readJSONVar('configs/accounts/facebook.json', 'enabled'), businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
 
 
 @module.route('/admin/{}/manageGoogle'.format(module.name), methods=['GET', 'POST'])

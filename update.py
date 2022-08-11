@@ -18,7 +18,10 @@ try:
     os.remove('setup')
 except Exception as e:
     input(e)
-
+try:
+    os.remove('setup.key')
+except Exception as e:
+    input(e)
 a = input("LoonaBilling Update Script \n1. Main Branch \n2. Development Branch\n>>> """)
 if a == '1':
     os.system('git checkout main')

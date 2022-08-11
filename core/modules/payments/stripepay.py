@@ -18,13 +18,14 @@ from core.utils import autoutils
 from datetime import datetime
 
 # https://stripe.com/docs/billing/subscriptions/webhooks
-
+# https://stripe.com/docs/billing/subscriptions/build-subscriptions
 
 module = Blueprint('Stripe', __name__)
-module.hasAdminPage = False
+module.hasAdminPage = True
 module.moduleDescription = 'Stripe Module'
 module.version = '2.0'
 module.supportedMethods = ['payment', 'subscription']
+module.supportedActions = ['createProduct', 'deleteProduct']
 
 stripe.api_key = 'sk_test_51HMpbpEVF5vnLBwDxNNzXC2QQwAiGcJ60fnGC6MIeR9VWcrC2Uzr5sTmUzHGPqNMfnYDD35IXsXWCO9pZRKkbiBI00Gk3nfJar'
 
@@ -49,8 +50,32 @@ def checks():
 
 checks()
 
+def createProduct(args):
+    for p in args['Config']:
+        if p['description'] == '':
+            description = 'No description'
+        else:
+            description = p['description']
+        if p['type'] == 'payment':
+            return stripe.Product.create(
+            name=p['title'],
+            description=description,
+            default_price_data={'currency': p['currency'],'unit_amount': int(p['price'])},
+            expand=["default_price"],
+            url=url_for('LoonaStore.store', _external=True))
+        else:
+            return stripe.Product.create(
+            name=p['title'],
+            description=description,
+            default_price_data={
+                "unit_amount": p['price'],
+                "currency": "usd",
+                "recurring": {"interval": "month"},
+            },
+            url=url_for('LoonaStore.store', _external=True))
+
 def getItem(category, item):
-    category = secure_filename(item)
+    category = secure_filename(category).replace('products_', '')
     item = secure_filename(item)
     with open(f'products/{category}/{item}.json') as of:
         data = json.load(of)
@@ -66,64 +91,57 @@ def getCart(token):
     if os.path.isfile(f'data/cart/{token}'):
         with open(f'data/cart/{token}') as of:
             data = json.load(of)
-            return data['Config'][0]['cart']
+            return data['Config'][0]
     else:
         return False
 
+def getCartType(cart):
+    for f in cart:
+        a = getItem(f['category'], f['item'])
+        if a['type'] == 'subscription':
+            return 'subscription'
+    return 'payment'
+
 def parseItems(args):
-    if args['type'] == 'buy':
-        i = getItem(args['category'], args['item'])
-        print(i)
-        desc = 'No description'
-        img = None
-        if i['description'].strip() != '':
-            desc = i['description']
-        if i['image'] != None:
-            img = config.domain_url + i['image']
-        mode = 'payment'
-        modes = ['payment', 'subscription']
-        try:
-            md = request.args['mode']
-            if md not in modes:
-                mode = 'payment'
-            else:
-                mode = md
-        except:
-            mode = 'payment'
-        if mode == 'payment':
-            return [{
-            'amount': i['price'],
-            'currency': i['currency'],
-            'quantity': 1,
-            'name': i['title'],
-            'description': desc,
-            'images': [img],
-            }], {'items': [i['title'], args['category'], args['item']]}
-        elif mode == 'subscription':
-            return [{
-            'quantity': 1,
-            'price_data': {
-                'recurring': {"interval": "month"},
-                'unit_amount': i['price'],
-                'currency': i['currency'],
-                'product_data': {
-                    'name': i['title'],
-                    'description': desc,
-                    'images': [img],
-                },
-            },
-            }], {'items': [i['title'], args['category'], args['item']]}
-            # pain
-        else:
+    print(args)
+    if args['type'] == 'cart':
+        cartt = getCart(args['cartid'])
+        if cartt == False:
             return False, {}
-        # https://upload.wikimedia.org/wikipedia/en/9/95/Test_image.jpg,
-    elif args['type'] == 'cart':
-        cart = getCart(args['cartid'])
-        if cart != False:
+        ctype = getCartType(cartt['cart'])
+        if ctype == 'subscription':
             a = []
-            print(cart)
             mtd = []
-            for f in cart:
+            for f in cartt['cart']:
+                print(f)
+                i = getItem(f['category'], f['item'])
+                print(i)
+                desc = 'No description'
+                img = None
+                if i['description'].strip() != '':
+                    desc = i['description']
+                if i['image'] != None:
+                    img = config.domain_url + i['image']
+                a += [{
+                    'quantity': 1,
+                    'price': i['args']['Stripe']['price']
+                    #'price_data': {
+                    #    'recurring': {"interval": "month"},
+                    #    'unit_amount': i['price'],
+                    #    'currency': i['currency'],
+                    #    'product_data': {
+                    #        'name': i['title'],
+                    #        'description': desc,
+                    #        'images': [img],
+                    #    },
+                    #},
+                    }]
+                mtd += [i['title'], f['category'], f['item']]
+            return a, {'items': mtd}
+        if ctype == 'payment':
+            a = []
+            mtd = []
+            for f in cartt['cart']:
                 print(f)
                 i = getItem(f['category'], f['item'])
                 print(i)
@@ -137,6 +155,7 @@ def parseItems(args):
                 'amount': i['price'],
                 'currency': i['currency'],
                 'quantity': 1,
+                #'price': i['args']['Stripe']['price']
                 'name': i['title'],
                 'description': desc,
                 'images': [img],
@@ -144,8 +163,19 @@ def parseItems(args):
                 }]
                 mtd += [i['title'], f['category'], f['item']]
             return a, {'items': mtd}
-        else:
-            return False, {}
+        return False, {}
+
+def getStripeProd(p):
+    try:
+        for path, dirs, files in os.walk("products", topdown=False):
+            for fname in files:
+                i = getItem(path, fname.split('.')[0])
+                if i['args']['Stripe']['prod'] == p:
+                    return i
+        return False
+    except Exception as e:
+        print(e)
+        return False
 
 @module.route('/Stripe/payment')
 @login_is_required
@@ -187,14 +217,15 @@ def payment():
                 if md not in modes:
                     return 'Invalid mode'
                 mode = md
-            except:
+            except Exception as e:
+                print(e)
                 mode = 'payment'
             items, mtd = parseItems(request.args)
-            print(items)
+            #print(items)
             if items == False:
                 return 'No items, try restarting your session'
             #print(user)
-            print('user' in p['args'])
+            #print('user' in p['args'])
             if 'user' not in p['args']:
                 cust_setup = stripe.Customer.create(email=p['email'])
                 cust = cust_setup.id
@@ -211,7 +242,7 @@ def payment():
                 line_items=items,
                 customer=cust,
                 client_reference_id=cartid,
-                metadata={'items': str(json.dumps(mtd)), 'cartid': cartid}
+                #metadata={'items': str(json.dumps(mtd)), 'cartid': cartid}
             )
             #print(ssession)
             pid = len(os.listdir('data/user/{}/sessions'.format(p['ID'])))
@@ -229,6 +260,8 @@ def payment():
             })
             with open('data/user/{}/sessions/{}'.format(p['ID'], ssession.payment_intent), 'w+') as of:
                 json.dump(dt, of)
+            print(ssession.payment_intent)
+            print(ssession)
             return redirect(ssession.url, code=303)
 
 @module.route('/calltest', methods=['GET', 'POST'])
@@ -268,7 +301,7 @@ def webhook():
     # - payment_intent.succeeded
 
     # Subscription
-    # -
+    # - Invoice.paid
     try:
         if event['type'].startswith('invoice.'):
             print(event['type'], event['data']['object']['customer_email'])
@@ -282,6 +315,12 @@ def webhook():
                 json.dump(json.loads(str(event)), of)
         if event['type'] == 'invoice.paid':
             print('paid', event)
+            for f in event['data']['object']['lines']['data']:
+                #for ff in f['data']:
+                print(f['plan']['product'])
+                a = getStripeProd(f['plan']['product'])
+                auto = tuple(a['automation'])
+                print(autoutils.runAutomation(auto[0].split('-')[0], auto[0].split('-')[1], auto[1:][0].split(', ')))
         if event['type'] == 'payment_intent.created':
             #print(event)
             with open('data/user/{}/{}.json'.format(auth.getID(event['data']['object']['receipt_email']), event['type']), 'w+') as of:
@@ -331,6 +370,15 @@ def webhook():
             })
             with open('data/user/{}/payments/{}/status.json'.format(uid, event['data']['object']['id']), 'w+') as of:
                 json.dump(dt, of)
+            #cuser = stripeutils.getPaymentCustomer(event['data']['object']['id'])
+            #with open('data/user/{}/sessions/{}'.format(cuser, event['data']['object']['id'])) as of:
+            #    data = json.load(of)
+            #    print(data)
+            #    for p in data['Config']:
+            #        for pp in p['cart']:
+            #            a = getItem(pp['category'], pp['item'])
+            #            auto = tuple(a['automation'])
+            #            print(autoutils.runAutomation(auto[0].split('-')[0], auto[0].split('-')[1], auto[1:][0].split(', ')))
 
         if event['type'] == 'charge.succeeded':
             #print(event)
@@ -389,6 +437,53 @@ def adminPage():
         bal = '0.0'
     #print(stripe.Balance.retrieve())
     return render_template('core/Stripe/admin.html', bal=bal, businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
+
+@module.route('/admin/{}/listPurcahses'.format(module.name), methods=['GET', 'POST'])
+@hauth.login_required
+def adminListPurchases():
+    if request.method == 'POST':
+        print(request.form)
+        try:
+            for a in request.form:
+                print(a)
+                b = a.split('-')
+                print(b)
+                if b[0].strip() == 'refund':
+                    stripe.Refund.create(charge=b[1])
+                if b[0].strip() == 'unrefund':
+                    print('unrefund')
+                    #print(stripe.Charge.retrieve(b[1])['refunds']['data'][0]['id'])
+                    c = stripe.Refund.cancel(stripe.Charge.retrieve(b[1])['refunds']['data'][0]['id'])
+                    return str(c)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            #return str(e)
+            return redirect(url_for('Stripe.adminListPurchases'))
+    try:
+        bal = stripe.Balance.retrieve()["available"][0]["amount"]
+    except:
+        bal = '0.0'
+    try:
+        purchases = stripe.Charge.list() #stripe.checkout.Session.list()
+    except:
+        purchases = []
+    try:
+        refunds = stripe.Refund.list()
+    except:
+        refunds = []
+    try:
+        customers = stripe.Customer.list()
+    except:
+        customers = []
+    #print(stripe.Balance.retrieve())
+    try:
+        #print(stripe.Charge.list())
+        return render_template('core/Stripe/adminListPurchases.html', customers=customers, customer=stripe.Customer.retrieve, purchases=purchases, refunds=refunds, bal=bal, businessName=files.getBranding()[0], moduleName=module.name, moduleDescription=module.moduleDescription)
+    except Exception as e:
+        print(e)
+        return 'Unable to get. Have you added an API Key?'
 
 @module.route('/admin/{}/emailSettings'.format(module.name))
 @hauth.login_required

@@ -183,7 +183,8 @@ div.content {
     </form>
     <!--<a href='/Stripe/payment?category={{ category }}&item={{ f[3] }}&type=buy&mode=payment'><button>Buy now</button></a>-->
     {% elif f[4] == 'subscription' %}
-    <a href='/Stripe/payment?category={{ category }}&item={{ f[3] }}&type=buy&mode=subscription'><button>Subscribe <i class="fa-solid fa-arrow-rotate-left"></i></button></a>
+    <form method="POST">
+    <button type="submit" name='buysub-{{ category }}-{{ f[3] }}'>Subscribe <i class="fa-solid fa-arrow-rotate-left"></i></button>
     {% else %}
     {% endif %}
   </div>
