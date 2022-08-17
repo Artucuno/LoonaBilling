@@ -260,16 +260,16 @@ def payment():
             })
             with open('data/user/{}/sessions/{}'.format(p['ID'], ssession.payment_intent), 'w+') as of:
                 json.dump(dt, of)
-            print(ssession.payment_intent)
-            print(ssession)
+            #print(ssession.payment_intent)
+            #print(ssession)
             return redirect(ssession.url, code=303)
 
-@module.route('/calltest', methods=['GET', 'POST'])
-def calltest():
-    print(request.headers)
-    print(request.form)
-    print(request.data)
-    return 'YAY'
+#@module.route('/calltest', methods=['GET', 'POST'])
+#def calltest():
+#    print(request.headers)
+#    print(request.form)
+#    print(request.data)
+#    return 'YAY'
 
 endpoint_secret = 'whsec_5bd944db308fd8c36176b422a8e8f369abf4fe2acb4967c627c5ddcfc6f12e81'
 @module.route(f'/{module.name}/webhook', methods=['POST'])
@@ -304,7 +304,7 @@ def webhook():
     # - Invoice.paid
     try:
         if event['type'].startswith('invoice.'):
-            print(event['type'], event['data']['object']['customer_email'])
+            #print(event['type'], event['data']['object']['customer_email'])
             uid = auth.getID(event['data']['object']['customer_email'])
             cf(f'data/user/{uid}/payments')
             cf('data/user/{}/payments/{}'.format(uid, event['data']['object']['payment_intent']))
@@ -314,10 +314,10 @@ def webhook():
             with open('data/user/{}/payments/{}/paydata/{}.json'.format(uid, event['data']['object']['payment_intent'], event['type']), 'w+') as of:
                 json.dump(json.loads(str(event)), of)
         if event['type'] == 'invoice.paid':
-            print('paid', event)
+            #print('paid', event)
             for f in event['data']['object']['lines']['data']:
                 #for ff in f['data']:
-                print(f['plan']['product'])
+                #print(f['plan']['product'])
                 a = getStripeProd(f['plan']['product'])
                 auto = tuple(a['automation'])
                 print(autoutils.runAutomation(auto[0].split('-')[0], auto[0].split('-')[1], auto[1:][0].split(', ')))
@@ -325,8 +325,8 @@ def webhook():
             #print(event)
             with open('data/user/{}/{}.json'.format(auth.getID(event['data']['object']['receipt_email']), event['type']), 'w+') as of:
                 json.dump(event, of)
-            print(event['data']['object']['receipt_email'])
-            print(event['data']['object']['id'])
+            #print(event['data']['object']['receipt_email'])
+            #print(event['data']['object']['id'])
             uid = auth.getID(event['data']['object']['receipt_email'])
             cf(f'data/user/{uid}/payments')
             cf('data/user/{}/payments/{}'.format(uid, event['data']['object']['id']))
@@ -349,11 +349,11 @@ def webhook():
             #uid = auth.getID(event['data']['object']['receipt_email'])
             #with open('configs/stri/{}.json'.format(event['type']), 'w+') as of:
             #    json.dump(event, of)
-            print(event)
+            #print(event)
             with open('data/user/{}/{}.json'.format(auth.getID(event['data']['object']['receipt_email']), event['type']), 'w+') as of:
                 json.dump(event, of)
-            print(event['data']['object']['receipt_email'])
-            print(event['data']['object']['id'])
+            #print(event['data']['object']['receipt_email'])
+            #print(event['data']['object']['id'])
             uid = auth.getID(event['data']['object']['receipt_email'])
             cf(f'data/user/{uid}/payments')
             cf('data/user/{}/payments/{}'.format(uid, event['data']['object']['id']))
@@ -385,7 +385,7 @@ def webhook():
             cuser = stripeutils.getPaymentCustomer(event['data']['object']['payment_intent'])
             with open('data/user/{}/sessions/{}'.format(cuser, event['data']['object']['payment_intent'])) as of:
                 data = json.load(of)
-                print(data)
+                #print(data)
                 for p in data['Config']:
                     if os.path.isfile('data/cart/{}'.format(p['cartid'])):
                         with open('data/cart/{}'.format(p['cartid'])) as of:
@@ -420,7 +420,7 @@ def webhook():
             #    print(e)
 
         # Handle the event
-        print('Unhandled event type {}'.format(event['type']))
+        #print('Unhandled event type {}'.format(event['type']))
         return jsonify(success=True)
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -442,12 +442,12 @@ def adminPage():
 @hauth.login_required
 def adminListPurchases():
     if request.method == 'POST':
-        print(request.form)
+        #print(request.form)
         try:
             for a in request.form:
-                print(a)
+                #print(a)
                 b = a.split('-')
-                print(b)
+                #print(b)
                 if b[0].strip() == 'refund':
                     stripe.Refund.create(charge=b[1])
                 if b[0].strip() == 'unrefund':

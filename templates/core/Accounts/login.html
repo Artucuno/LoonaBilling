@@ -20,19 +20,9 @@
     <hr>
   </form>
   <form method="POST">
-    {% if googleLogin %}
-    <button name='login-google' type="submit">Login with <i class="fa-brands fa-google"></i></button>
-    {% endif %}
-    {% if discordLogin %}
-    <button name='login-discord' type="submit">Login with <i class="fa-brands fa-discord"></i></button>
-    {% endif %}
-    {% if githubLogin %}
-    <button name='login-github' type="submit">Login with <i class="fa-brands fa-github"></i></button>
-    {% endif %}
-    {% if facebookLogin %}
-    <button name='login-facebook' type="submit">Login with <i class="fa-brands fa-facebook"></i></button>
-    {% endif %}
-    <!--<button name='login-microsoft' type="submit">Login with <i class="fa-brands fa-microsoft"></i></button>-->
+    {% for f in pros %}
+    <button name='login-{{ f[0] }}' type="submit">Login with <i class="{{ f[1] }}"></i></button>
+    {% endfor %}
     <a href='/register'>Create an account</a> / <a href='/forgot-password'>Forgot Password</a>
   </form>
 </div>

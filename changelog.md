@@ -28,6 +28,7 @@ Alot of the updates aren't documented
 + Added more banned words
 
 ## Accounts
++ Made Login Providers Modular
 + Added Settings Tab
 + 2FA
   + [ ] Added 2FA Module System
@@ -47,7 +48,8 @@ Alot of the updates aren't documented
   + Added Enable / Disable (TODO)
   + Added Setup Guide (TODO)
 + Fixed hCaptcha (Changed hcaptcha.verify to module.hcaptcha.verify)
-+ Added Microsoft Login (Pain) (WIP)
++ Added Microsoft Login
+  + Added Enable/Disable (TODO)
 
 ## Products
 + Added Product importing from Payment Providers
@@ -73,7 +75,7 @@ Alot of the updates aren't documented
     + [ ] Move Servers Easily
     + [ ] Online/Remote Backups
 + Payments
-  + [x] Create Shopping Cart / Checkout (WIP)
+  + [x] Create Shopping Cart / Checkout
   + [x] Create Customer Transaction Numbers (WIP) (Cart IDs)
   + [x] Rework Payment Provider System
     + [x] Stripe (WIP)

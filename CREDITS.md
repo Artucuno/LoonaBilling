@@ -17,3 +17,7 @@ https://stackoverflow.com/questions/988228/convert-a-string-representation-of-a-
 https://stripe.com/docs/billing/subscriptions/webhooks (Subscription Webhooks)
 
 https://stripe.com/docs/billing/subscriptions/build-subscriptions (Subscriptions)
+
+https://stackoverflow.com/a/46948056 (Microsoft oauth issue)
+
+https://gist.github.com/Bilka2/5dd2ca2b6e9f3573e0c2defe5d3031b2 (Discord Webhook)

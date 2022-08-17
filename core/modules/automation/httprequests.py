@@ -11,9 +11,6 @@ module.methods = dir()
 
 module.automation = [('sendRequest', {'url': 'str', 'data': 'str'})]
 
-def test(xee, eee):
-    pass
-
 def sendRequest(dta):
     print('**********', dta)
     url = dta[0]

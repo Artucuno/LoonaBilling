@@ -1,7 +1,6 @@
 # LoonaBilling
 # Made by Artucuno (https://github.com/Artucuno)
 
-
 import time
 import logging
 lf = True
@@ -61,7 +60,7 @@ except:
     app.version = '?'
 app.upver = app.version
 app.hasUpdate = False
-app.secret_key = str(getnode()).encode()
+app.secret_key = 'J(**h*&f87E8HFEW8FHEW78FY*&&*fye*&F87)'.encode() # RECOMMENDED THAT YOU CHANGE THIS
 
 def cf(folder):
     try:

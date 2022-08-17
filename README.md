@@ -49,11 +49,15 @@ A WIP Open-source WHMCS alternative.
   - [ ] Reseller Accounts
 - [x] Multiple Login Methods
   - [x] Email Login
+  - [ ] OTP Login
   - [x] Google Login
   - [x] Discord Login
   - [x] Github Login
   - [x] Facebook Login
-  - [ ] Microsoft Login (WIP)
+  - [ ] Instagram Login
+  - [x] Microsoft Login
+  - [ ] Snapchat Login
+  - [ ] Twitter Login
 
 # Contribution
 All contributions are welcome! Just create a fork and open up a Pull Request :)
