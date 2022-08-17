@@ -2,69 +2,85 @@
 
 <img src="https://img.shields.io/discord/887501133902385202?logo=discord&style=social"> <img src="https://img.shields.io/github/last-commit/Loona-cc/LoonaBilling?logo=github&style=social"> <img src="https://img.shields.io/github/workflow/status/Loona-cc/LoonaBilling/CodeQL?logo=github-sponsors&style=social">
 
-# Development Changelog
-Sorry for the late update, I tried to make this update a little bigger.
+# Development Changelog (v1.9)
+Sorry for the long wait for another update, had some problems with Stripe and the API.
+Alot of the updates aren't documented
 
 ## LoonaBilling
-+ Renamed links in `templates/core/index.html`
-+ Failed module loading is deleted from `app.mods` list
++ Changed encryption salt to Fernet key instead of Mac Address
+  + Reason: Mac Address changes on different networks and will be a pain if servers change
++ Fixed Branding Issue
++ Added Error Handling for Admin Dashboard stats
++ Added Error Handling for Git Library
 
-## Admin Dashboard
-+ Added Admin Modules Tab
-  + Enable/Disable Modules
-  + Install Modules
+## Stripe
++ Rewrote Stripe Module
++ Added Automation
+  + [x] Payments
+  + [x] Subscriptions (WIP)
 
-+ Added Update Tab
-  + Check for updates
-  + Pull new updates (WIP)
+## PayPal
++ Added PayPal (Needs to be reworked)
+  + Looking for contributions
 
-+ Added File Manager Tab
-  + Edit template files from the web browser
-
-+ New Admin Sidebar
-  + Branding Tab
-  + Modules Tab
-  + Update Tab
-  + File manager tab
-  + Theme Manager
-
-## Customer Dashboard
-+ Added new links
-  + Help / Support
-    + Support Page
-    + Tickets
-  + Services
-    + Payments
-
-## Config
-+ Removed Branding Settings -> Moved to Branding Tab
+## Search
++ Fixed Links
++ Added more banned words
 
 ## Accounts
-+ Fixed dashboard being Accounts.wrapper
-+ Added Manage Accounts Tab
-+ Suspended accounts now redirect to `error.html` with message
++ Made Login Providers Modular
++ Added Settings Tab
++ 2FA
+  + [ ] Added 2FA Module System
++ Added Authenticator 2FA
+  + Works with Google Authenticator
+  + Asks for verification when logging in
++ Added SMS 2FA (Todo)
+  + [ ] Implemented SMS 2FA
+  + ...
++ Added Discord Login / Register
++ Added Enable / Disable for Google, Discord and Email
++ Added hCaptcha Tab
++ Added Github Login
+  + Add Enable / Disable
++ Changed Discord Login/Register Enc PW to ID (instead of email)
++ Added Facebook Login
+  + Added Enable / Disable (TODO)
+  + Added Setup Guide (TODO)
++ Fixed hCaptcha (Changed hcaptcha.verify to module.hcaptcha.verify)
++ Added Microsoft Login
+  + Added Enable/Disable (TODO)
 
-# Auth Util
-+ Updated login_is_required wrapper
-  + Fixed routes becoming module.wrapper
+## Products
++ Added Product importing from Payment Providers
+  + Show Products
+  + Import Products (Todo)
+
+## Mail
++ Added SMTP Settings
++ Added Mail Sending
+
+## Stripe
++ Stripe adds Customer ID to user config
 
 # Files Util
-+ Added `readJSON(file)` function
-+ Added `readJSONVar(file, var)` function
-+ Added `delVarJSON(file, var)` function
-+ Added `getBranding()` function
-+ Added `Filesize(file)` function
-+ Added `endisModule(module)` function
-+ Added `moduleEnabled(module)` function
-
-# Mail Util
-+ Added Threaded Mail Sending
-
-# Network Util
-+ Added Network Util to cut down on repeated code
-
-## Divs
-+ Added adminSide div
++ Added `updateJSONargs(file, arg, content)` function
 
 # Other
 + Join our [Discord](https://loona.cc)!
+
+## Development TODO
++ Main
+  + [ ] Backup System
+    + [ ] Move Servers Easily
+    + [ ] Online/Remote Backups
++ Payments
+  + [x] Create Shopping Cart / Checkout
+  + [x] Create Customer Transaction Numbers (WIP) (Cart IDs)
+  + [x] Rework Payment Provider System
+    + [x] Stripe (WIP)
+    + [x] PayPal (WIP) (NEED CONTRIBUTORS)
++ Store
+  + [ ] Make default be the default page (/store)
++ Products
+  + [ ] Import Products from Payment Providers

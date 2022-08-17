@@ -67,17 +67,30 @@ div.content {
 </div>
 
 <div class="content">
-  <h2>Manage {{ moduleName }}</h2>
+  <h2>Manage hCaptcha - {{ moduleName }}</h2>
   <p>{{ moduleDescription }}</h3>
     <hr>
     <h2>Management</h2>
-    <a href="/admin/{{ moduleName }}/manageAccounts">Manage Accounts</a>
-    <a href="/admin/{{ moduleName }}/manageGithub">Manage Github Settings</a>
-    <a href="/admin/{{ moduleName }}/manageDiscord">Manage Discord Settings</a>
-    <a href="/admin/{{ moduleName }}/manageGoogle">Manage Google Settings</a>
-    <a href="/admin/{{ moduleName }}/manageFacebook">Manage Facebook Settings</a>
-    <a href="/admin/{{ moduleName }}/captcha">Manage hCaptcha Settings</a>
-    <!--<a href="/admin/{{ moduleName }}/manageSettings">Manage Settings</a>-->
+    <h2>hCaptcha Settings</h2>
+    <form method="POST">
+      {% if captchaenabled %}
+      <input type="checkbox" name='hCaptcha-enabled' checked>
+      {% else %}
+      <input type="checkbox" name='hCaptcha-enabled'>
+      {% endif %}
+      <label for="google-enabled">hCaptcha Enabled</label><br>
+      <button name='isEnabled' style="submit">Update</button>
+    </form><br><hr>
+    <form method="POST">
+      <input name="siteKey" type="text" placeholder="Site key">
+      <br>
+      <button style="submit">Update</button>
+    </form><br><hr>
+    <form method="POST">
+      <input name="secretKey" type="text" placeholder="Secret key">
+      <br>
+      <button style="submit">Update</button>
+    </form><br><hr>
 </div>
 
 </body>

@@ -67,17 +67,31 @@ div.content {
 </div>
 
 <div class="content">
-  <h2>Manage {{ moduleName }}</h2>
+  <h2>Manage Accounts - {{ moduleName }}</h2>
   <p>{{ moduleDescription }}</h3>
     <hr>
     <h2>Management</h2>
-    <a href="/admin/{{ moduleName }}/manageAccounts">Manage Accounts</a>
-    <a href="/admin/{{ moduleName }}/manageGithub">Manage Github Settings</a>
-    <a href="/admin/{{ moduleName }}/manageDiscord">Manage Discord Settings</a>
-    <a href="/admin/{{ moduleName }}/manageGoogle">Manage Google Settings</a>
-    <a href="/admin/{{ moduleName }}/manageFacebook">Manage Facebook Settings</a>
-    <a href="/admin/{{ moduleName }}/captcha">Manage hCaptcha Settings</a>
-    <!--<a href="/admin/{{ moduleName }}/manageSettings">Manage Settings</a>-->
+    <a href='https://github.com/Artucuno/LoonaBilling/wiki/Login-Methods#discord'>Setup Guide</a>
+    <h2>Discord Settings</h2>
+    <form method="POST">
+      {% if discordenabled %}
+      <input type="checkbox" name='discord-enabled' checked>
+      {% else %}
+      <input type="checkbox" name='discord-enabled'>
+      {% endif %}
+      <label for="discord-enabled">Discord Login Enabled</label><br>
+      <button name='isEnabled' style="submit">Update</button>
+    </form><br><hr>
+    <form method="POST">
+      <input name="clientID" type="text" placeholder="Client ID">
+      <br>
+      <button style="submit">Update</button>
+    </form><br><hr>
+    <form method="POST">
+      <input name="clientSecret" type="text" placeholder="Client Secret">
+      <br>
+      <button style="submit">Update</button>
+    </form><br><hr>
 </div>
 
 </body>

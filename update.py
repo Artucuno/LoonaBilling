@@ -6,7 +6,7 @@ for root, dirs, files in os.walk(".", topdown=False):
         if name == '__pycache__':
             shutil.rmtree(os.path.join(root, name))
 
-rmtrees = ["products", "data", "static/assets/prodimages","configs"]
+rmtrees = ["products", "data", "static/assets/prodimages","configs", "logs"]
 for i in rmtrees:
     try:
         shutil.rmtree(i)
@@ -14,14 +14,15 @@ for i in rmtrees:
             os.mkdir('logs')
     except Exception as e:
         input(e)
-    try:
-        os.remove('setup')
-    except Exception as e:
-        input(e)
-
+try:
+    os.remove('setup')
+except Exception as e:
+    input(e)
+try:
+    os.remove('setup.key')
+except Exception as e:
+    input(e)
 a = input("LoonaBilling Update Script \n1. Main Branch \n2. Development Branch\n>>> """)
-if isinstance(a, int) == False:
-    raise TypeError
 if a == '1':
     os.system('git checkout main')
 elif a == '2':

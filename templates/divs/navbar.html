@@ -1,3 +1,12 @@
+<style>
+.badge {
+  background-color: red;
+  color: white;
+  padding: 4px 8px;
+  text-align: center;
+  border-radius: 5px;
+}
+</style>
 <div class="topnav">
   <a><img src='/static/logo.png' style="max-height: 32px; max-width: 64px;"></img></a> <!-- Update -->
   <a class="active" href="/">{{ businessName }}</a>
@@ -18,10 +27,12 @@
     </button>
     <div class="dropdown-content">
       <a href="/dashboard"><i class="fa-solid fa-dashboard"></i> Dashboard</a>
+      <a href="/settings"><i class="fa-solid fa-cog"></i> Settings</a>
       <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
     </div>
   </div>
   {% else %}
   <a href='/login' style="float:right"><i class="fa-solid fa-user-lock"></i></a>
   {% endif %}
+  <a href='/cart' style="float:right"><i class="fa-solid fa-cart-shopping"></i></a>
 </div>

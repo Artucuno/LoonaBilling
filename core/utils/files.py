@@ -1,12 +1,33 @@
 import json
 import sys, os
 from hurry.filesize import size
+import types
+from inspect import getmembers, isfunction
+
+def getFuncts(fname):
+    methods = []
+    for f in [a for a in getmembers(fname) if isfunction(a[1])]:
+        methods += [{'args': (f[0], f[1].__code__.co_varnames)}]
+    return methods
+    #return [getattr(fname, a) for a in dir(fname) if isinstance(getattr(fname, a), types.FunctionType)]
 
 def updateJSON(file, arg, content):
     try:
         with open(file) as of:
             data = json.load(of)
             data['Config'][0][arg] = content
+            of.close()
+            #print(data)
+            with open(file, 'w+') as off:
+                json.dump(data, off)
+    except Exception as e:
+        print(e)
+
+def updateJSONargs(file, arg, content):
+    try:
+        with open(file) as of:
+            data = json.load(of)
+            data['Config'][0]['args'][arg] = content
             of.close()
             #print(data)
             with open(file, 'w+') as off:
@@ -28,7 +49,7 @@ def delVarJSON(file, arg):
 
 def readJSON(file):
     with open(file) as of:
-        data = json.loads(of)
+        data = json.load(of)
         return data
 
 def readJSONVar(file, var):

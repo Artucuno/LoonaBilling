@@ -6,3 +6,4 @@ debug = False
 port = 80
 ssl = None # Replace with ssl = ('cert.pem', 'key.pem') for SSL
 filemanagerEnabled = True
+mailEnabled = True

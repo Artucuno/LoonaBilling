@@ -71,11 +71,16 @@ div.content {
   <p>{{ moduleDescription }}</h3>
     <hr>
     <h2>Management</h2>
+    <a href="https://github.com/Artucuno/LoonaBilling/wiki/Login-Methods#google">Setup Guide</a>
     <h2>Google Settings</h2>
     <form method="POST">
+      {% if googleenabled %}
+      <input type="checkbox" name='google-enabled' checked>
+      {% else %}
       <input type="checkbox" name='google-enabled'>
+      {% endif %}
       <label for="google-enabled">Google Login Enabled</label><br>
-      <button style="submit">Update</button>
+      <button name='isEnabled' style="submit">Update</button>
     </form><br><hr>
     <form method="POST" enctype="multipart/form-data">
       <input type="file" name='clientFile'>

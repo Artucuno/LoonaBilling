@@ -9,7 +9,7 @@ from core.utils import files
 import config
 
 module = Blueprint('Search', __name__)
-module.hasAdminPage = True
+module.hasAdminPage = False
 module.moduleDescription = 'Allows customers to search your site'
 module.version = '1.0'
 
@@ -32,9 +32,17 @@ def has_no_empty_params(rule):
     arguments = rule.arguments if rule.arguments is not None else ()
     return len(defaults) >= len(arguments)
 
+def isBanned(url):
+    banned = ['admin', 'callback', 'startSession', 'webhook']
+    for f in banned:
+        if f in url:
+            return True
+    return False
+
 @module.route('/search')
 def searchPage():
     links = []
+
     for rule in current_app.url_map.iter_rules():
         # Filter out rules we can't navigate to in a browser
         # and rules that require parameters
@@ -42,7 +50,7 @@ def searchPage():
             url = url_for(rule.endpoint, **(rule.defaults or {}))
             #print(url)
             if request.args['search'] in str(url):
-                if 'admin' not in url:
+                if not isBanned(url):
                     links.append((url, rule.endpoint))
     return render_template('core/Search/search.html', searches=links, search=request.args['search'], businessName=files.getBranding()[0])
 

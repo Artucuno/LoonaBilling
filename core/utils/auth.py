@@ -14,6 +14,32 @@ from functools import update_wrapper
 
 hauth = HTTPBasicAuth()
 
+def gen2FA(data):
+    a = ''
+    for f in range(random.randint(30,50)):
+        a += random.choice(string.ascii_letters)
+    if a in os.listdir('data/2fa'):
+        return gen2FA()
+    with open(f'data/2fa/{a}', 'w+') as of:
+        json.dump(data, of)
+    return a
+
+def genKey(folder):
+    a = ''
+    for f in range(random.randint(10,30)):
+        a += random.choice(string.ascii_letters)
+    if a in os.listdir(folder):
+        return genKey()
+    return a
+
+def getUser(id):
+    try:
+        with open(f'data/user/{id}/config.json') as of:
+            data = json.load(of)
+            return data
+    except:
+        return False
+
 def login_is_required(function):
     def wrapper(*args, **kwargs):
         if "user" not in session:
@@ -21,7 +47,7 @@ def login_is_required(function):
         else:
             if isAuth(session['user']):
                 if not isSuspended(json.loads(session['user'])['Config'][0]['email']):
-                    return function()
+                    return function(*args, **kwargs)
                 else:
                     return redirect(url_for('Accounts.suspended'))
             else:
@@ -87,7 +113,7 @@ def genState():
     for f in range(random.randint(10,30)):
         a += random.choice(string.ascii_letters)
     if a in os.listdir('data/states'):
-        return genState
+        return genState()
     return a
 
 def isAuth(sess):
@@ -115,9 +141,19 @@ def isAuth(sess):
 def getUserCount():
     return len(os.listdir('data/user'))
 
+def setupKey():
+    if not os.path.isfile('setup.key'):
+        with open('setup.key', 'wb') as of:
+            ky = Fernet.generate_key()
+            of.write(ky)
+            return ky
+    else:
+        with open('setup.key', 'rb') as of:
+            return of.read()
+
 def encKey(adPass):
     password = adPass.encode()
-    salt = str(getnode()).encode()
+    salt = str(setupKey()).encode()
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,

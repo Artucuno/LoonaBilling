@@ -121,11 +121,19 @@ div.content {
           <option value="{{ f }}">{{ f }}</a>
           {% endfor %}
         </select>
-        <select name='paypro' required>
-          {% for f in payments %}
-          <option value="{{ f.name }}">{{ f.name }}</a>
+        <select name='paytype' required>
+          <option value="payment">One time</option>
+          <option value="subscription">Subscription (Experimental)</option>
+        </select>
+        <select name='automation' required>
+          <option value="None">None</option>
+          {% for f in automation %}
+          {% for ff in f[1] %}
+          <option value="{{ f[0] }}-{{ ff['args'][0] }}">{{ f[0] }} - {{ ff['args'][0] }} {{ ff['args'][1] }}</a>
+          {% endfor %}
           {% endfor %}
         </select>
+        <input style="width: 100%" name="automationargs" placeholder="Automation Args (Seperated by ,)">
         <button type="submit">Add Product</button>
       </div>
       <div class="form-input" style="float: left">

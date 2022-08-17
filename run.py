@@ -1,7 +1,6 @@
 # LoonaBilling
 # Made by Artucuno (https://github.com/Artucuno)
 
-
 import time
 import logging
 lf = True
@@ -34,13 +33,18 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from art import *
 import requests
 import getpass
-import git
+try:
+    import git
+    from git import Repo
+    gitEnabled = True
+except:
+    gitEnabled = False
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from core.utils.auth import hauth
+from core.utils import auth
 from core.utils import files
 from core.utils import network
-from git import Repo
 import urllib.parse
 
 print(os.getpid()) # Checking resource usage for pid
@@ -50,9 +54,13 @@ init()
 app = Flask(__name__)
 app.adminModules = []
 app.loadedModules = []
-app.version = '1.8.1'
+try:
+    app.version = open('version', 'r').read().strip()
+except:
+    app.version = '?'
+app.upver = app.version
 app.hasUpdate = False
-app.secret_key = str(getnode()).encode()
+app.secret_key = 'J(**h*&f87E8HFEW8FHEW78FY*&&*fye*&F87)'.encode() # RECOMMENDED THAT YOU CHANGE THIS
 
 def cf(folder):
     try:
@@ -106,15 +114,17 @@ def checks():
         x = requests.get('https://raw.githubusercontent.com/Loona-cc/LoonaBilling/main/version', timeout=3)
         if x.text.strip() != app.version:
             app.hasUpdate = True
+            app.upver = x.text.strip()
         else:
             print('You are on the latest version!')
+            app.upver = app.version
     except Exception as e:
         print('Unable to get latest version: {}'.format(e))
     if not os.path.isfile('setup'):
         tprint("Setup")
         print("Welcome to LoonaBilling! To get started, please enter an admin password to use for login.")
         adPass = getpass.getpass('Enter new admin password >>> ')
-        key = encKey(adPass)
+        key = auth.encKey(adPass)
         #input(key)
         with open('setup', 'wb') as of:
             of.write(key)
@@ -216,14 +226,26 @@ loadModules()
 @app.route('/admin')
 @hauth.login_required
 def admin():
-    return render_template('core/admin.html', app=app, cpuUsage=int(psutil.cpu_percent()), ramUsage=int(psutil.virtual_memory().percent), storageUsage=int(psutil.disk_usage('/').percent))
+    try:
+        cpuUsage = int(psutil.cpu_percent())
+    except:
+        cpuUsage = 0
+    try:
+        ramUsage = int(psutil.virtual_memory().percent)
+    except:
+        ramUsage = 0
+    try:
+        storageUsage = int(psutil.disk_usage('/').percent)
+    except:
+        storageUsage = 0
+    return render_template('core/admin.html', app=app, cpuUsage=cpuUsage, ramUsage=ramUsage, storageUsage=storageUsage)
 
 @app.route('/admin/branding', methods=['GET', 'POST'])
 @hauth.login_required
 def adminBranding():
     if request.method == 'POST':
-        files.updateJSON('configs/branding/branding.json', 'businessName', request.form['businessName'])
-        files.updateJSON('configs/branding/branding.json', 'aboutText', request.form['aboutText'])
+        files.updateJSON('configs/core/branding/branding.json', 'businessName', request.form['businessName'])
+        files.updateJSON('configs/core/branding/branding.json', 'aboutText', request.form['aboutText'])
     return render_template('core/adminBranding.html', config=files.getBranding(), app=app)
 
 @app.route('/admin/update', methods=['GET', 'POST'])
@@ -232,9 +254,12 @@ def adminUpdate():
     if request.method == 'POST':
         print(request.form)
         if 'update' in request.form:
-            repo = git.Repo("")
-            o = repo.remotes.origin
-            o.pull()
+            if gitEnabled:
+                repo = git.Repo("")
+                o = repo.remotes.origin
+                o.pull()
+            else:
+                return 'Git module not enabled'
         if 'checkUpdate' in request.form:
             try:
                 x = requests.get('https://raw.githubusercontent.com/Loona-cc/LoonaBilling/main/version', timeout=3)
@@ -320,13 +345,17 @@ def adminFilemanagerEdit():
     else:
         return render_template('error.html', businessName=files.getBranding()[0], msg='File does not exist!')
 
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html', businessName=files.getBranding()[0]), 404
 
 if __name__ == '__main__':
-    app.config['SERVER_NAME'] = config.domain
+    #app.config['SERVER_NAME'] = config.domain
     if app.hasUpdate:
-        print(Fore.GREEN + '[LoonaBilling] ' + Fore.YELLOW + '*** There is a new update! ***' + Style.RESET_ALL)
+        print(Fore.GREEN + '[LoonaBilling] ' + Fore.YELLOW + '*** There is a new update! {} to {} ***'.format(app.version, app.upver) + Style.RESET_ALL)
     print(Fore.GREEN + '[LoonaBilling] ' + Style.RESET_ALL + f'Ready to start on {config.ip}/{config.domain}')
     app.run(host=config.ip, port=config.port, debug=config.debug, ssl_context=config.ssl)

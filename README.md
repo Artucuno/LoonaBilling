@@ -13,28 +13,56 @@ A WIP Open-source WHMCS alternative.
 - [x] Built with Flask
 - [x] Lightweight
 - [x] [Stripe](https://stripe.com) Support
+  - [x] One-Time Payments
+  - [x] Recurring Payments
+  - [x] Webhook (WIP)
+    - [x] One-Time Payments
+    - [x] Recurring Payments (WIP)
+      - [x] On Purchase
+      - [ ] Recurring (Soon)
+- [x] [PayPal](https://paypal.com) Support (LOOKING FOR CONTRIBUTORS)
+  - [x] One-Time Payments (WIP)
+  - [ ] Recurring Payments
+  - [ ] Webhook
+- [x] [hCaptcha](https://www.hcaptcha.com/)
 - [x] Fully Modular Design
   - [x] Custom Module Support
 - [x] Admin Panel
 - [x] Product Management
-  - [x] Stripe Products Integration
+  - [ ] Stripe Products Integration
 - [x] Storefront
-- [ ] Email Sending (W.I.P)
+- [x] Shopping Cart
+- [x] Email Sending (WIP)
   - [ ] Purchase Messages
   - [ ] Contact Messages
   - [ ] Account Registration Messages
-- [x] Website Search (W.I.P)
-- [x] User Management (W.I.P)
+- [x] Website Search
+- [x] User Management
+  - [x] Two Factor Authentication
+    - [x] [Google Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2)
+    - [ ] SMS Authentication (Soon)
+      - [ ] [TextMagic](https://textmagic.com)
+      - [ ] [AndroidSMSServer](https://github.com/umer0586/AndroidSMSServer)
+    - [ ] Email 2FA (Soon)
   - [x] Basic Accounts
   - [ ] Affiliate Accounts
   - [ ] Reseller Accounts
 - [x] Multiple Login Methods
   - [x] Email Login
+  - [ ] OTP Login
   - [x] Google Login
-  - [ ] Discord Login
+  - [x] Discord Login
+  - [x] Github Login
+  - [x] Facebook Login
+  - [ ] Instagram Login
+  - [x] Microsoft Login
+  - [ ] Snapchat Login
+  - [ ] Twitter Login
+
+# Contribution
+All contributions are welcome! Just create a fork and open up a Pull Request :)
 
 # TODO
-- [ ] Shopping Cart
 - [ ] Domain Management/Reselling
   - [ ] DNS Management
   - [ ] ID Management
@@ -42,4 +70,5 @@ A WIP Open-source WHMCS alternative.
 - [ ] Management API
   - [ ] Account Management
   - [ ] Product Management
-- [ ] [PayPal](https://paypal.com) Support (?)
+
+- [ ] Documented Code & Comments (Soon)
