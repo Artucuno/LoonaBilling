@@ -15,4 +15,4 @@ protobuf==4.21.2
 psutil==5.8.0
 requests==2.25.1
 stripe==3.4.0
-Werkzeug==2.0.0
+Werkzeug==2.2.3
